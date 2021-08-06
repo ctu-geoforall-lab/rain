@@ -36,7 +36,7 @@ class SoilGranProcess(Process):
 
         super(SoilGranProcess, self).__init__(
             self._handler,
-            identifier="soil-gran-hsg",
+            identifier="soil-texture-hsg",
             version="1.0",
             title="Zrnitost a hydrologicka skupina pudy",
             abstract="Sluzba vraci vyrez rastru zvolene hydropedologicke charakteristiky dle zadaneho polygonu o velikosti do 20 km2.",
