@@ -174,4 +174,26 @@ MAP
     END # CLASS
   END # LAYER
 
+  LAYER
+    NAME "clay"
+    METADATA
+      "wms_title"           "clay"
+      "wms_abstract"        "?"
+      "wms_onlineresource"  "${NGINX_HTTP}://${NGINX_HOST}:${NGINX_PORT}/services/wms"
+      "wms_srs"             "EPSG:5514 EPSG:2065 EPSG:102067 EPSG:4326 EPSG:32633"
+      "wms_enable_request"  "*"
+      "wms_extent"          "-907000 -1230000 -429000 -933000"
+    END # METADATA
+    PROJECTION
+	"init=epsg:5514"
+    END # PROJECTION
+    TYPE RASTER
+    STATUS ON
+    DATA "/opt/mapserv/wms_data/soil_texture_hsg/clay.tif"
+    CLASS
+        NAME "clay"
+#    	KEYIMAGE "legend/N100.png"
+    END # CLASS
+  END # LAYER
+
 END # MAP
