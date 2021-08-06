@@ -8,7 +8,7 @@ from pywps.app.exceptions import ProcessError
 from grass.exceptions import CalledModuleError
 from grass.pygrass.modules import Module
 
-class SoilGranProcess(Process):
+class SoilTextureHsgProcess(Process):
     def __init__(self):
         self.layers = ["sand", "silt", "clay", "usda-texture-class"]
         inputs = [
@@ -34,7 +34,7 @@ class SoilGranProcess(Process):
             )
         ]
 
-        super(SoilGranProcess, self).__init__(
+        super(SoilTextureHsgProcess, self).__init__(
             self._handler,
             identifier="soil-texture-hsg",
             version="1.0",
@@ -42,7 +42,7 @@ class SoilGranProcess(Process):
             abstract="Sluzba vraci vyrez rastru zvolene hydropedologicke charakteristiky dle zadaneho polygonu o velikosti do 20 km2.",
             inputs=inputs,
             outputs=outputs,
-            grass_location="/grassdata/soil_gran",
+            grass_location="/grassdata/soil_texture_hsg",
             store_supported=True,
             status_supported=True)
 

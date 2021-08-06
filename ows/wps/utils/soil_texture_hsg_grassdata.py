@@ -1,4 +1,4 @@
-# grass -c EPSG:5514 grassdata/soil_gran --exec python3 utils/soil_gran.py ~/Downloads/wps_data
+# grass -c EPSG:5514 grassdata/soil_texture_hsg --exec python3 utils/soil_texture_hsg_grassdata.py ../wms/data/soil_texture_hsg/
 
 import os
 import sys
