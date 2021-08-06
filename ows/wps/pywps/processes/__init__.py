@@ -28,7 +28,7 @@ from pywps.app.exceptions import ProcessError
 
 class SubDayPrecipProcess(Process):
      def __init__(self, identifier, description,
-                  location='/grassdata/subdayprecip-design',
+                  location='/data/grassdata/subdayprecip-design',
                   input_params=[], output_params=[]):
           inputs = []
           outputs = []

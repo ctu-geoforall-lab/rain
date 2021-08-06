@@ -42,7 +42,7 @@ class SoilTextureHsgProcess(Process):
             abstract="Sluzba vraci vyrez rastru zvolene hydropedologicke charakteristiky dle zadaneho polygonu o velikosti do 20 km2.",
             inputs=inputs,
             outputs=outputs,
-            grass_location="/grassdata/soil_texture_hsg",
+            grass_location="/data/grassdata/soil_texture_hsg",
             store_supported=True,
             status_supported=True)
 
