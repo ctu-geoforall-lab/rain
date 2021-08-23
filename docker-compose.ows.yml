@@ -8,11 +8,12 @@ services:
       - ./ows/nginx/log:/var/log/nginx/
       - ./ows/wps/pywps:/opt/pywps/
       - ./ows/wps/log:/var/log/pywps/
-      - ./ows/wps/grassdata:/grassdata
+      - ./ows/wps/grassdata:/data/grassdata
       - ./ows/wms:/opt/mapserv/wms
       - ./ows/wms/data:/opt/mapserv/wms_data
       - ./ows/wms/log/:/var/log/mapserv
       - ./ows/wfs:/opt/mapserv/wfs
+      - ./qgis/styles:/data/styles
     ports:
       - 80:80
     env_file:
