@@ -42,7 +42,7 @@ class SoilTextureHsgProcess(Process):
             abstract="Sluzba vraci vyrez rastru zvolene hydropedologicke charakteristiky dle zadaneho polygonu o velikosti do 20 km2.",
             inputs=inputs,
             outputs=outputs,
-            grass_location="/grassdata/soil_texture_hsg",
+            grass_location="/data/grassdata/soil_texture_hsg",
             store_supported=True,
             status_supported=True)
 
@@ -106,6 +106,11 @@ class SoilTextureHsgProcess(Process):
         for lyr in layers:
             Module("r.out.gdal", flags="c",
                    input=lyr, output=os.path.join(output_dir, lyr + ".tif"))
+            # copy style
+            shutil.copy(
+                "/data/styles/{}.qml".format(lyr),
+                os.path.join(output_dir, "{}.qml".format(lyr))
+            )
 
         # zip output dir
         shutil.make_archive(output_dir, 'zip', output_dir)
