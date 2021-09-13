@@ -5,8 +5,8 @@ import glob
 from qml2clr import qml2clr
 from grass.pygrass.modules import Module
 
-def raster_float2int(raster_float, raster_int, clr, coef=1.0):
-    map_name = os.path.splitext(os.path.basename(raster_float))[0].replace('-', '_')
+def process_raster(raster_float, raster_int, clr, coef=1.0):
+    map_name = os.path.splitext(os.path.basename(raster_float))[0]
     Module("r.external", input=raster_float, output=map_name, flags="o")
     Module("g.region", raster=map_name)
     Module("r.mapcalc", expression=f"{map_name}_int = round({map_name} * {coef})")
@@ -21,8 +21,8 @@ def main(in_dir, out_dir, qml_dir):
         print(f"Processing {fn}...")
         outf = os.path.join(out_dir, fn + '.tif')
         qmlf = os.path.join(qml_dir, fn + '.qml')
-        
-        raster_float2int(inf, outf, '\n'.join(qml2clr(qmlf)))
+
+        process_raster(inf, outf, '\n'.join(qml2clr(qmlf)))
 
 if __name__ == "__main__":
     main(
