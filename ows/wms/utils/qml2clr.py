@@ -7,13 +7,18 @@ def qml2clr(qml_file, coef=1.0):
     root = tree.getroot()
     clr = []
     # fp
-    clr_nodes = root.findall("./pipe/rasterrenderer/rastershader/colorrampshader/item")
+    clr_nodes = root.findall(
+        "./pipe/rasterrenderer/rastershader/colorrampshader/item")
     if not clr_nodes:
-        clr_nodes = root.findall("./pipe/rasterrenderer/colorPalette/paletteEntry")
+        clr_nodes = root.findall(
+            "./pipe/rasterrenderer/colorPalette/paletteEntry")
+        is_fp = False
+    else:
+        is_fp = True
 
     for node in clr_nodes:
         clr.append('{} {}'.format(
             round(float(node.get('value')) * coef), node.get('color')
         ))
 
-    return clr
+    return clr, is_fp

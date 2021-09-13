@@ -2,16 +2,19 @@
 
 import os
 import glob
-from qml2clr import qml2clr
 from grass.pygrass.modules import Module
 
-def process_raster(raster_float, raster_int, clr, coef=1.0):
+from qml2clr import qml2clr
+from wms_legend import create_legend
+
+def process_raster(raster_float, raster_int, clr, is_fp, coef=1.0):
     map_name = os.path.splitext(os.path.basename(raster_float))[0]
     Module("r.external", input=raster_float, output=map_name, flags="o")
     Module("g.region", raster=map_name)
     Module("r.mapcalc", expression=f"{map_name}_int = round({map_name} * {coef})")
     Module("r.colors", map=map_name + "_int", rules='-', stdin_=clr)
     Module("r.out.gdal", input=map_name + "_int", output=raster_int, overwrite=True)
+    create_legend(map_name + "_int", is_fp)
 
 def main(in_dir, out_dir, qml_dir):
     if not os.path.exists(out_dir):
@@ -21,8 +24,9 @@ def main(in_dir, out_dir, qml_dir):
         print(f"Processing {fn}...")
         outf = os.path.join(out_dir, fn + '.tif')
         qmlf = os.path.join(qml_dir, fn + '.qml')
-
-        process_raster(inf, outf, '\n'.join(qml2clr(qmlf)))
+        clr, is_fp = qml2clr(qmlf)
+        
+        process_raster(inf, outf, '\n'.join(clr), is_fp)
 
 if __name__ == "__main__":
     main(
