@@ -38,7 +38,7 @@
     <wps:Input>
       <ows:Identifier>layers</ows:Identifier>
       <wps:Data>
-	<wps:LiteralData>sand,silt</wps:LiteralData>
+	<wps:LiteralData>sand,silt,clay,usda-texture-class</wps:LiteralData>
       </wps:Data>
     </wps:Input>
   </wps:DataInputs>

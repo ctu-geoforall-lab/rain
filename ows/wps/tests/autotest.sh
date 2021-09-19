@@ -11,14 +11,14 @@ STYP="E,F"
 VALUE="25"
 LIMIT="10000"
 
-cp ows/wps/tests/request-d-rain-shp.xml /tmp
+cp ows/wps/tests/request-d-rain-shp.xml ows/wps/tests/request-soil-texture-hsg.xml /tmp
 cd /tmp
 
 echo "**************************************************************"
 echo "* d-rain-shp (POST) "
 echo "**************************************************************"
 
-wget -q --post-file request-d-rain-shp.xml 'http://localhost/services/wps?' -O response.xml
+wget -q --post-file request-d-rain-shp.xml "${URL}/services/wps?" -O response.xml
 file=`cat response.xml | grep '\<wps:Reference' | cut -d'"' -f2`
 wget -q $file
 echo "RESULT:"
@@ -91,5 +91,14 @@ file=`curl $CURL | grep '\<wps:Reference' | cut -d'"' -f2`
 wget -q $file
 echo "RESULT:"
 cat `basename $file` | head -n2
+
+echo "**************************************************************"
+echo "* soil-texture-hsg"
+echo "**************************************************************"
+wget -q --post-file request-soil-texture-hsg.xml "${URL}/services/wps?" -O response.xml
+file=`cat response.xml | grep '\<wps:Reference' | cut -d'"' -f2`
+wget -q $file
+echo "RESULT:"
+unzip -l `basename $file` | grep '.tif$'
 
 exit 0
