@@ -141,7 +141,7 @@ class SubDayPrecipProcess(Process):
 
           if 'output_shapes' in output_params:
                outputs.append(ComplexOutput(
-                    identifier="output_shapes",
+                    identifier="output_shapes" if identifier == "d-rain6h-timedist" else "output",
                     title="Vysledne hodnoty prubehu navrhovych srazek ve formatu CSV",
                     supported_formats=[Format('text/csv')],
                     as_reference = True)
