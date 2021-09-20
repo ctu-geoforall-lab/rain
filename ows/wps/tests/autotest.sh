@@ -1,7 +1,8 @@
 #!/bin/sh -e
 
 # Test WPS processes
-URL="http://localhost"
+#URL="http://localhost"
+URL="https://rain1.fsv.cvut.cz"
 DATA="@xlink:href=http://rain.fsv.cvut.cz/geodata/test.gml"
 KEY="HLGP_ID"
 RP="N2,N5,N100"
@@ -68,7 +69,7 @@ echo $CURL
 file=`curl $CURL | grep '\<wps:Reference' | cut -d'"' -f2`
 wget -q $file
 echo "RESULT:"
-cat `basename $file` |  grep -E '[0-9],[05],'
+cat `basename $file` | head -n2
 
 echo "**************************************************************"
 echo "* d-rain6h-timedist (reduction disabled)"
@@ -79,7 +80,7 @@ echo $CURL
 file=`curl $CURL | grep '\<wps:Reference' | cut -d'"' -f2`
 wget -q $file
 echo "RESULT:"
-cat `basename $file` |  grep -E '[0-9],[05],'
+cat `basename $file` | head -n2
 
 echo "**************************************************************"
 echo "* raintotal6h-timedist"
