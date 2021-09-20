@@ -9,7 +9,7 @@ from wms_legend import create_legend
 
 def process_raster(raster_float, raster_int, clr, is_fp, coef=1.0):
     map_name = os.path.splitext(os.path.basename(raster_float))[0]
-    Module("r.external", input=raster_float, output=map_name, flags="o")
+    Module("r.import", input=raster_float, output=map_name, flags="o")
     Module("g.region", raster=map_name)
     Module("r.mapcalc", expression=f"{map_name}_int = round({map_name} * {coef})")
     Module("r.colors", map=map_name + "_int", rules='-', stdin_=clr)
