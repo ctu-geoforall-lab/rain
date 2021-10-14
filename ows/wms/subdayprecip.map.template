@@ -177,8 +177,8 @@ MAP
   LAYER
     NAME "clay"
     METADATA
-      "wms_title"           "clay"
-      "wms_abstract"        "?"
+      "wms_title"           "Podíl jílové frakce"
+      "wms_abstract"        "Vrstva procentuálního zastoupení jílové frakce (< 0,002 mm)"
       "wms_onlineresource"  "${NGINX_HTTP}://${NGINX_HOST}:${NGINX_PORT}/services/wms"
       "wms_srs"             "EPSG:5514 EPSG:2065 EPSG:102067 EPSG:4326 EPSG:32633"
       "wms_enable_request"  "*"
@@ -199,8 +199,8 @@ MAP
   LAYER
     NAME "sand"
     METADATA
-      "wms_title"           "sand"
-      "wms_abstract"        "?"
+      "wms_title"           "Podíl frakce písku"
+      "wms_abstract"        "Vrstva procentuálního zastoupení frakce písku (0,063 - 2,0 mm)"
       "wms_onlineresource"  "${NGINX_HTTP}://${NGINX_HOST}:${NGINX_PORT}/services/wms"
       "wms_srs"             "EPSG:5514 EPSG:2065 EPSG:102067 EPSG:4326 EPSG:32633"
       "wms_enable_request"  "*"
@@ -221,8 +221,8 @@ MAP
   LAYER
     NAME "silt"
     METADATA
-      "wms_title"           "silt"
-      "wms_abstract"        "?"
+      "wms_title"           "Podíl prachové frakce"
+      "wms_abstract"        "Vrstva procentuálního zastoupení prachové frakce (0,002 -  0,063 mm)"
       "wms_onlineresource"  "${NGINX_HTTP}://${NGINX_HOST}:${NGINX_PORT}/services/wms"
       "wms_srs"             "EPSG:5514 EPSG:2065 EPSG:102067 EPSG:4326 EPSG:32633"
       "wms_enable_request"  "*"
@@ -241,10 +241,10 @@ MAP
   END # LAYER
 
   LAYER
-    NAME "usda_texture_class"
+    NAME "USDA_texture_class"
     METADATA
-      "wms_title"           "USDA texture class"
-      "wms_abstract"        "?"
+      "wms_title"           "Třída zrnitosti půdy (USDA)"
+      "wms_abstract"        "Vrstva tříd půdní zrnitosti dle české (TKSP) a mezinárodně platné klasifikace (USDA)"
       "wms_onlineresource"  "${NGINX_HTTP}://${NGINX_HOST}:${NGINX_PORT}/services/wms"
       "wms_srs"             "EPSG:5514 EPSG:2065 EPSG:102067 EPSG:4326 EPSG:32633"
       "wms_enable_request"  "*"
@@ -262,4 +262,25 @@ MAP
     END # CLASS
   END # LAYER
 
+  LAYER
+    NAME "HSG"
+    METADATA
+      "wms_title"           "Hydrologická skupina půdy"
+      "wms_abstract"        "Vrstva hydrologických skupin půdy dle půdní zrnitosti a metodiky USDA"
+      "wms_onlineresource"  "${NGINX_HTTP}://${NGINX_HOST}:${NGINX_PORT}/services/wms"
+      "wms_srs"             "EPSG:5514 EPSG:2065 EPSG:102067 EPSG:4326 EPSG:32633"
+      "wms_enable_request"  "*"
+      "wms_extent"          "-907000 -1230000 -429000 -933000"
+    END # METADATA
+    PROJECTION
+	"init=epsg:5514"
+    END # PROJECTION
+    TYPE RASTER
+    STATUS ON
+    DATA "/opt/mapserv/wms_data/soil_texture_hsg/hsg.tif"
+    CLASS
+        NAME "usda_texture_class"
+	KEYIMAGE "legend/hsg.png"
+    END # CLASS
+  END # LAYER
 END # MAP
