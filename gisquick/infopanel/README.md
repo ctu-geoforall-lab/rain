@@ -11,6 +11,7 @@ Copy source files of custom InfoPanel into `src/extensions/` directory
 
 Install dependencies
 ```
+npm i @vue/cli-service
 npm install d3
 ```
 
