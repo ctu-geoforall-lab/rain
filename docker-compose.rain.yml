@@ -12,15 +12,20 @@ services:
 
   qgisserver:
     restart: always
-    image: gisquick/qgis-server:3.4
+    image: gisquick/qgis-server:3.16-debian
+    mem_limit: 2000M
+    #scale: 2
     volumes:
       - publish:/publish/
+    environment:
+      - QGIS_SERVER_IGNORE_BAD_LAYERS=1
+      - QGIS_SERVER_PARALLEL_RENDERING=true
     expose:
-      - 90
+      - 5555
 
   django:
     restart: always
-    image: gisquick/django:latest
+    image: gisquick/django:publishing-redesign
     volumes:
       - db-data:/var/www/gisquick/data/
       - publish:/publish/
@@ -41,6 +46,7 @@ services:
       - DJANGO_SECRET_KEY=${SECRET_KEY}
       - GISQUICK_SQLITE_DB=/var/www/gisquick/data/gisquick.sqlite3
       - GISQUICK_ACCOUNTS_ENABLED=False
+      - GISQUICK_MAPSERVER_URL=http://nginx:10080/qgis-server
     env_file:
 # Rain modification starts here
       - gisquick/django.env
@@ -51,7 +57,7 @@ services:
 
   go:
     restart: always
-    image: gisquick/settings
+    image: gisquick/settings:publishing-redesign
     volumes:
       - publish:/publish/
       - media:/var/www/media/
@@ -59,9 +65,9 @@ services:
       - PROJECTS_ROOT=/publish
       - MAP_CACHE_ROOT=/var/www/media/cache
       - SERVER_URL=http://django:8000
-      - MAPSERVER_URL=http://qgisserver:90/cgi-bin/qgis_mapserv.fcgi
-      - MAX_FILE_UPLOAD=50M
-      - MAX_PROJECT_SIZE=150M
+      - MAPSERVER_URL=http://nginx:10080/qgis-server
+      - MAX_FILE_UPLOAD=200M
+      - MAX_PROJECT_SIZE=200M
     expose:
       - 8001
     logging: *default-logging
@@ -98,7 +104,7 @@ services:
     command: "copy-assets /var/www /assets/map"
 
   web-user:
-    image: gisquick/web-user
+    image: gisquick/web-user:publishing-redesign
     volumes:
       - assets:/assets/
     command: "copy-assets /var/www /assets/user"

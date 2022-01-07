@@ -22,8 +22,8 @@ class SoilTextureHsgProcess(Process):
             LiteralInput(
                 identifier="layers",
                 title="Vrstvy hydropedologickych charakteristik ({})".format(",".join(self.layers)),
-                data_type='string',
-                allowed_values=self.layers
+                data_type='string'
+                #               , allowed_values=self.layers
             )
         ]
         outputs = [
