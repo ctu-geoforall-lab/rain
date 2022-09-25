@@ -28,6 +28,9 @@ RUN patch -p0 < /tmp/Process.diff
 RUN mkdir -p /opt/mapserv/
 RUN mkdir -p /var/log/mapserv/
 
+# set up notifier
+COPY notifier.py /opt/
+
 # run Gunicorn
-COPY startup.sh /opt/startup.sh
+COPY startup.sh /opt/
 CMD ["/opt/startup.sh"]
