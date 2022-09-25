@@ -5,7 +5,6 @@ FROM ubuntu:18.04
 COPY requirements.txt /tmp/requirements.txt
 RUN apt-get update && apt-get install --yes software-properties-common gettext-base
 RUN add-apt-repository --yes ppa:ubuntugis/ubuntugis-unstable
-RUN add-apt-repository --yes ppa:ubuntugis/ubuntugis-experimental # REMOVE WHEN GRASS GIS 7.8.6 IS RELEASED
 RUN apt-get update
 RUN apt-get install --yes python3-pip python3-pyproj gunicorn3 nginx
 RUN apt-get install --yes grass-core grass-doc grass-dev
