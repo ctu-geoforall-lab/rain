@@ -2,7 +2,7 @@ import pytest
 import os
 import tempfile
 from pathlib import Path
-from owslib.wps import WebProcessingService, monitorExecution
+from owslib.wps import WebProcessingService, monitorExecution, ComplexDataInput
 from osgeo import ogr
 
 class TestWPS:
@@ -18,16 +18,7 @@ class TestWPS:
         assert len(processes) > 5
         assert any(process.identifier.startswith('d-rain') for process in processes)
 
-    def test_002_d_rain_shp_post(self):
-        """Test d-rain-shp (post method)."""
-        with open('./ows/wps/tests/request-d-rain-shp.xml','rb') as fd:
-            request = fd.read()
-        execution = self._wps().execute(None, [], request=request)
-        monitorExecution(execution)
-        assert execution.getStatus() == "ProcessSucceeded"
-        ofile = self._get_filename() + '.zip'
-        execution.getOutput(ofile)
-
+    def _test_d_rain_shp_output(self, ofile, fields):
         ds = ogr.Open('/vsizip/' + ofile)
         assert ds
 
@@ -37,7 +28,6 @@ class TestWPS:
         assert lyr.GetFeatureCount() == 15
 
         field_names = [field.name for field in lyr.schema]
-        fields = ['H_N2T360', 'H_N5T360', 'H_N100T360']
 
         lyr.ResetReading()
         while True:
@@ -49,3 +39,37 @@ class TestWPS:
 
         ds = None
         os.remove(ofile)
+
+    def test_002_d_rain_shp_post(self):
+        """Test d-rain-shp (post method)."""
+        with open('./ows/wps/tests/request-d-rain-shp.xml','rb') as fd:
+            request = fd.read()
+        execution = self._wps().execute(None, [], request=request)
+        monitorExecution(execution)
+        assert execution.getStatus() == "ProcessSucceeded"
+        ofile = self._get_filename() + '.zip'
+        execution.getOutput(ofile)
+
+        self._test_d_rain_shp_output(
+            ofile,
+            ['H_N2T360', 'H_N5T360', 'H_N100T360']
+        )
+
+    def test_003_d_rain_shp(self):
+        """Test d-rain-shp"""
+        inputs = [
+            ("input", ComplexDataInput('http://rain.fsv.cvut.cz/geodata/test.gml')),
+            ("return_period", "N2,N5,N10"),
+            ("rainlength", "360"),
+            ("area_size", "10000")
+        ]
+        execution = self._wps().execute('d-rain-shp', inputs)
+        monitorExecution(execution)
+        assert execution.getStatus() == "ProcessSucceeded"
+
+        ofile = self._get_filename() + '.zip'
+        execution.getOutput(ofile)
+        self._test_d_rain_shp_output(
+            ofile,
+            ["H_N2T360", "H_N5T360", "H_N10T360"]
+        )
