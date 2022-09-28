@@ -18,11 +18,18 @@ class TestWPS:
         assert len(processes) > 5
         assert any(process.identifier.startswith('d-rain') for process in processes)
 
-    def _test_d_rain_shp_output(self, ofile, fields):
-        ds = ogr.Open('/vsizip/' + ofile)
+    def _test_d_rain_output(self, ofile, fields):
+        if Path(ofile).suffix == '.zip':
+            dsn = '/vsizip/' + ofile
+        else:
+            dsn = ofile
+        ds = ogr.Open(dsn)
         assert ds
 
-        assert ds.GetLayer().GetName() == "subdayprecip_output"
+        if Path(ofile).suffix == '.zip':
+            assert ds.GetLayer().GetName() == "subdayprecip_output"
+        else:
+            assert ds.GetLayer().GetName() == Path(ofile).stem
 
         lyr = ds.GetLayer()
         assert lyr.GetFeatureCount() == 15
@@ -35,7 +42,7 @@ class TestWPS:
             if feat is None:
                 break
             for f in fields:
-                assert feat[f] > 0
+                assert float(feat[f]) > 0
 
         ds = None
         os.remove(ofile)
@@ -50,7 +57,7 @@ class TestWPS:
         ofile = self._get_filename() + '.zip'
         execution.getOutput(ofile)
 
-        self._test_d_rain_shp_output(
+        self._test_d_rain_output(
             ofile,
             ['H_N2T360', 'H_N5T360', 'H_N100T360']
         )
@@ -69,7 +76,27 @@ class TestWPS:
 
         ofile = self._get_filename() + '.zip'
         execution.getOutput(ofile)
-        self._test_d_rain_shp_output(
+        self._test_d_rain_output(
             ofile,
             ["H_N2T360", "H_N5T360", "H_N10T360"]
+        )
+
+    def test_004_d_rain_csv(self):
+        """Test d-rain-csv"""
+        inputs = [
+            ("input", ComplexDataInput('http://rain.fsv.cvut.cz/geodata/test.gml')),
+            ("return_period", "N2,N5,N10"),
+            ("rainlength", "360"),
+            ("keycolumn", "HLGP_ID"),
+            ("area_size", "10000")
+        ]
+        execution = self._wps().execute('d-rain-csv', inputs)
+        monitorExecution(execution)
+        assert execution.getStatus() == "ProcessSucceeded"
+
+        ofile = self._get_filename() + '.csv'
+        execution.getOutput(ofile)
+        self._test_d_rain_output(
+            ofile,
+            ["H_N2T360_mm", "H_N5T360_mm", "H_N10T360_mm"]
         )
