@@ -103,6 +103,15 @@ class TestWPS:
             ["H_N2T360_mm", "H_N5T360_mm", "H_N10T360_mm"]
         )
 
-    def test_004_d_rain_point(self):
+    def test_005_d_rain_point(self):
         """Test d-rain-point"""
-        pass
+        ofile = self._run_job(
+            'd-rain-point',
+            [("obs_x", "15.11784"),
+             ("obs_y", "49.88598"),
+             ("return_period", "N2,N5,N10"),
+             ("rainlength", "360")],
+            '.txt'
+        )
+        with open(ofile) as fd:
+            assert fd.read() == "30.2,44.2,53.6"
