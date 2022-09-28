@@ -18,7 +18,17 @@ class TestWPS:
         assert len(processes) > 5
         assert any(process.identifier.startswith('d-rain') for process in processes)
 
-    def _test_d_rain_output(self, ofile, fields):
+    def _run_job(self, process, inputs, ext):
+        execution = self._wps().execute(process, inputs)
+        monitorExecution(execution)
+        assert execution.getStatus() == "ProcessSucceeded"
+
+        ofile = self._get_filename() + ext
+        execution.getOutput(ofile)
+
+        return ofile
+        
+    def _process_d_rain_output(self, ofile, fields):
         if Path(ofile).suffix == '.zip':
             dsn = '/vsizip/' + ofile
         else:
@@ -57,46 +67,42 @@ class TestWPS:
         ofile = self._get_filename() + '.zip'
         execution.getOutput(ofile)
 
-        self._test_d_rain_output(
+        self._process_d_rain_output(
             ofile,
             ['H_N2T360', 'H_N5T360', 'H_N100T360']
         )
 
     def test_003_d_rain_shp(self):
         """Test d-rain-shp"""
-        inputs = [
-            ("input", ComplexDataInput('http://rain.fsv.cvut.cz/geodata/test.gml')),
-            ("return_period", "N2,N5,N10"),
-            ("rainlength", "360"),
-            ("area_size", "10000")
-        ]
-        execution = self._wps().execute('d-rain-shp', inputs)
-        monitorExecution(execution)
-        assert execution.getStatus() == "ProcessSucceeded"
-
-        ofile = self._get_filename() + '.zip'
-        execution.getOutput(ofile)
-        self._test_d_rain_output(
+        ofile = self._run_job(
+            'd-rain-shp',
+            [("input", ComplexDataInput('http://rain.fsv.cvut.cz/geodata/test.gml')),
+             ("return_period", "N2,N5,N10"),
+             ("rainlength", "360"),
+             ("area_size", "10000")],
+            '.zip'
+        )
+        self._process_d_rain_output(
             ofile,
             ["H_N2T360", "H_N5T360", "H_N10T360"]
         )
 
     def test_004_d_rain_csv(self):
         """Test d-rain-csv"""
-        inputs = [
-            ("input", ComplexDataInput('http://rain.fsv.cvut.cz/geodata/test.gml')),
-            ("return_period", "N2,N5,N10"),
-            ("rainlength", "360"),
-            ("keycolumn", "HLGP_ID"),
-            ("area_size", "10000")
-        ]
-        execution = self._wps().execute('d-rain-csv', inputs)
-        monitorExecution(execution)
-        assert execution.getStatus() == "ProcessSucceeded"
-
-        ofile = self._get_filename() + '.csv'
-        execution.getOutput(ofile)
-        self._test_d_rain_output(
+        ofile = self._run_job(
+            'd-rain-csv',
+            [("input", ComplexDataInput('http://rain.fsv.cvut.cz/geodata/test.gml')),
+             ("return_period", "N2,N5,N10"),
+             ("rainlength", "360"),
+             ("keycolumn", "HLGP_ID"),
+             ("area_size", "10000")],
+            '.csv'
+        )
+        self._process_d_rain_output(
             ofile,
             ["H_N2T360_mm", "H_N5T360_mm", "H_N10T360_mm"]
         )
+
+    def test_004_d_rain_point(self):
+        """Test d-rain-point"""
+        pass
