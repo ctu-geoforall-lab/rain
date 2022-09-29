@@ -38,7 +38,7 @@ class TestWPS:
 
         return ofile
         
-    def _process_d_rain_output(self, ofile, fields):
+    def _process_d_rain_output(self, ofile, units=False):
         if Path(ofile).suffix == '.zip':
             dsn = '/vsizip/' + ofile
         else:
@@ -57,6 +57,8 @@ class TestWPS:
         field_names = [field.name for field in lyr.schema]
 
         lyr.ResetReading()
+        fields = self._get_fields(units)
+
         while True:
             feat = lyr.GetNextFeature()
             if feat is None:
@@ -66,6 +68,10 @@ class TestWPS:
 
         ds = None
         os.remove(ofile)
+
+    def _get_fields(self, units):
+        units_str = "_mm" if units else ""
+        return [f'H_{x}T{self.rainlength}{units_str}' for x in self.return_period.split(',')]
 
     def test_002_d_rain_shp_post(self):
         """Test d-rain-shp (post method)."""
@@ -78,8 +84,7 @@ class TestWPS:
         execution.getOutput(ofile)
 
         self._process_d_rain_output(
-            ofile,
-            ['H_N2T360', 'H_N5T360', 'H_N100T360']
+            ofile
         )
 
     def test_003_d_rain_shp(self):
@@ -93,8 +98,7 @@ class TestWPS:
             '.zip'
         )
         self._process_d_rain_output(
-            ofile,
-            ["H_N2T360", "H_N5T360", "H_N100T360"]
+            ofile
         )
 
     def test_004_d_rain_csv(self):
@@ -110,7 +114,7 @@ class TestWPS:
         )
         self._process_d_rain_output(
             ofile,
-            ["H_N2T360_mm", "H_N5T360_mm", "H_N100T360_mm"]
+            units=True
         )
 
     def test_005_d_rain_point(self):
@@ -181,3 +185,12 @@ class TestWPS:
                     assert float(row[f"H_typ{st}_mm"]) > 0                
                 time += 5
                 
+    def test_009_soil_texture_hsg(self):
+        with open('./ows/wps/tests/request-soil-texture-hsg.xml','rb') as fd:
+            request = fd.read()
+        execution = self._wps().execute(None, [], request=request)
+        monitorExecution(execution)
+        assert execution.getStatus() == "ProcessSucceeded"
+        ofile = self._get_filename() + '.zip'
+        execution.getOutput(ofile)
+        # broken ...
