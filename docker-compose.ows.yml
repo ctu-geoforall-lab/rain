@@ -24,3 +24,11 @@ services:
       - NGINX_HOST=localhost
       - NGINX_PORT=80
       - OWS_TEST_REPEAT=24
+
+  ows_tests:
+    restart: unless-stopped
+    build: ows_tests/
+    depends_on:
+      - ows
+    environment:
+      - OWS_TEST_REPEAT=24
