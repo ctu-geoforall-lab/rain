@@ -149,7 +149,7 @@ class TestWPS:
              ("return_period", self.return_period),
              ("keycolumn", self.keycolumn),
              ("type", self.stype)],
-            '.txt'
+            '.csv'
         )
         self._process_d_rain6h_timedist(ofile)
 
@@ -161,6 +161,23 @@ class TestWPS:
              ("keycolumn", self.keycolumn),
              ("type", self.stype),
              ("area_red", "false")],
-            '.txt'
+            '.csv'
         )
         self._process_d_rain6h_timedist(ofile)
+
+    def test_008_raintotal6h_timedist(self):
+        ofile = self._run_job(
+            'raintotal6h-timedist',
+            [("value", self.value),
+             ("type", self.stype)],
+            '.csv'
+        )
+        with open(ofile) as fd:
+            data = DictReader(fd)
+            time = 5
+            for row in data:
+                assert int(row["CAS_min"]) == time
+                for st in self.stype.split(','):
+                    assert float(row[f"H_typ{st}_mm"]) > 0                
+                time += 5
+                
