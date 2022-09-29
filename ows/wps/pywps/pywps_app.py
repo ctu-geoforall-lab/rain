@@ -15,7 +15,6 @@ from processes.subdayprecip_design_point import SubDayPrecipPoint
 from processes.subdayprecip_design_shapes import SubDayPrecipShapes
 from processes.subdayprecip_design_shapes_total import SubDayPrecipShapesTotal
 from processes.soil_texture_hsg import SoilTextureHsgProcess
-from processes.soil_texture_hsg_issue_26 import SoilTextureHsgProcess26
 
 processes = [
     SubDayPrecipShp(),
@@ -23,8 +22,7 @@ processes = [
     SubDayPrecipPoint(),
     SubDayPrecipShapes(),
     SubDayPrecipShapesTotal(),
-    SoilTextureHsgProcess(),
-    SoilTextureHsgProcess26()
+    SoilTextureHsgProcess()
 ]
 
 application = Service(
