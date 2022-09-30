@@ -14,3 +14,5 @@ ows/nginx/log
 ows/db/data
 openlayers2/main.js
 .env
+notifier.env
+ows_tests/log/
