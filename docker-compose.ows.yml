@@ -14,7 +14,6 @@ services:
       - ./ows/wms/log/:/var/log/mapserv
       - ./ows/wfs:/opt/mapserv/wfs
       - ./qgis/styles:/data/styles
-      - ./ows/wps/tests:/opt/tests/wps # move to Dockerfile
     ports:
       - 80:80
     env_file:
