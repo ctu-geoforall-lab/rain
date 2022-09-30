@@ -3,6 +3,7 @@ import os
 import sys
 import smtplib
 import socket
+from pathlib import Path
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.application import MIMEApplication
@@ -43,7 +44,7 @@ class Notifier:
                 )
 
             part['Content-Disposition'] = 'attachment; filename="{}"'.format(
-                os.path.splitext(logfile)[0] + '.txt'
+                Path(logfile).with_suffix('.txt').name
             )
             msg.attach(part)
 
@@ -61,11 +62,13 @@ if __name__ == "__main__":
         try:
             no = Notifier(username, password, mailhost, mailport)
             date = datetime.now()
-            info = " SUCCEEDED" if sys.argv[1] == "0" else "FAILED"
-            no.send(f"admin@lucas",
+            info = "[RAIN] OWS TESTS "
+            info += "SUCCEEDED" if sys.argv[1] == "0" else "FAILED"
+            body = f"\nExecution time: {date.isoformat()}\n"
+            no.send(os.environ["EMAIL_FROMADDR"],
                     os.environ["EMAIL_TOADDRS"].split(","),
-                    subject=f"[LUCAS] TESTS {info} {date.isoformat()}",
-                    body=info,
+                    subject=f"{info} {date.isoformat()}",
+                    body=info + body,
                     logfile=sys.argv[2]
             )
         except smtplib.SMTPAuthenticationError as e:

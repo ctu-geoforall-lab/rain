@@ -75,7 +75,7 @@ class TestWPS:
 
     def test_002_d_rain_shp_post(self):
         """Test d-rain-shp (post method)."""
-        with open('./ows/wps/tests/request-d-rain-shp.xml','rb') as fd:
+        with open('./tests/wps/request-d-rain-shp.xml','rb') as fd:
             request = fd.read()
         execution = self._wps().execute(None, [], request=request)
         monitorExecution(execution)
@@ -186,7 +186,7 @@ class TestWPS:
                 time += 5
                 
     def test_009_soil_texture_hsg(self):
-        with open('./ows/wps/tests/request-soil-texture-hsg.xml','rb') as fd:
+        with open('./tests/wps/request-soil-texture-hsg.xml','rb') as fd:
             request = fd.read()
         execution = self._wps().execute(None, [], request=request)
         monitorExecution(execution)
