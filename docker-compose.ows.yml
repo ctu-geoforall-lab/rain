@@ -35,4 +35,3 @@ services:
       - OWS_TEST_REPEAT=24
     env_file:
       - ./notifier.env
-

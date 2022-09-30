@@ -149,6 +149,19 @@ services:
     links:
       - db
 
+  ows_tests:
+    restart: unless-stopped
+    build: ows_tests/
+    depends_on:
+      - ows
+    volumes:
+      - ./ows_tests/wps:/opt/tests/wps
+      - ./ows_tests/log/:/var/log/ows_tests
+    environment:
+      - OWS_TEST_REPEAT=24
+    env_file:
+      - ./notifier.env
+      
   docs:
     build: docs/
     volumes:
