@@ -16,3 +16,4 @@ openlayers2/main.js
 .env
 notifier.env
 ows_tests/log/
+docker-compose.yml

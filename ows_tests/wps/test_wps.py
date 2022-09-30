@@ -16,8 +16,10 @@ class TestWPS:
     value="25"
     area_size="10000"
 
-    def _wps(self):
-        return WebProcessingService('https://rain1.fsv.cvut.cz/services/wps')
+    def _wps(self, url=None):
+        return WebProcessingService(
+            url if url else 'https://rain1.fsv.cvut.cz/services/wps'
+        )
 
     def _get_filename(self):
         return str(Path(tempfile._get_default_tempdir()) / next(tempfile._get_candidate_names()))
@@ -37,7 +39,18 @@ class TestWPS:
         execution.getOutput(ofile)
 
         return ofile
-        
+
+    def _run_job_request(self, request_file, ext, url=None):
+        with open(request_file,'rb') as fd:
+            request = fd.read()
+        execution = self._wps(url).execute(None, [], request=request)
+        monitorExecution(execution)
+        assert execution.getStatus() == "ProcessSucceeded"
+        ofile = self._get_filename() + ext
+        execution.getOutput(ofile)
+
+        return ofile
+    
     def _process_d_rain_output(self, ofile, units=False):
         if Path(ofile).suffix == '.zip':
             dsn = '/vsizip/' + ofile
@@ -75,13 +88,10 @@ class TestWPS:
 
     def test_002_d_rain_shp_post(self):
         """Test d-rain-shp (post method)."""
-        with open('./tests/wps/request-d-rain-shp.xml','rb') as fd:
-            request = fd.read()
-        execution = self._wps().execute(None, [], request=request)
-        monitorExecution(execution)
-        assert execution.getStatus() == "ProcessSucceeded"
-        ofile = self._get_filename() + '.zip'
-        execution.getOutput(ofile)
+        ofile = self._run_job_request(
+            './tests/wps/request-d-rain-shp.xml',
+            '.zip'
+        )
 
         self._process_d_rain_output(
             ofile
@@ -186,11 +196,26 @@ class TestWPS:
                 time += 5
                 
     def test_009_soil_texture_hsg(self):
-        with open('./tests/wps/request-soil-texture-hsg.xml','rb') as fd:
-            request = fd.read()
-        execution = self._wps().execute(None, [], request=request)
-        monitorExecution(execution)
-        assert execution.getStatus() == "ProcessSucceeded"
-        ofile = self._get_filename() + '.zip'
-        execution.getOutput(ofile)
+        ofile = self._run_job_request(
+            './tests/wps/request-soil-texture-hsg.xml',
+            '.zip'
+        )
         # broken ...
+
+    def test_010_smoderp2d_capabilities(self):
+        processes = self._wps('https://rain1.fsv.cvut.cz:4444/services/wps').processes
+        assert len(processes) == 2
+        assert any(process.identifier.startswith('smoderp') for process in processes)
+
+    def test_011_smoderp2d_line(self):
+        ofile = self._run_job_request(        
+            './tests/wps/request-smoderp2d-line.xml',
+            '.csv',
+            'https://rain1.fsv.cvut.cz:4444/services/wps'
+        )
+
+        with open(ofile) as fd:
+            data = DictReader(fd)
+            for row in data:
+                assert float(row["length[m]"]) > 0
+                assert row["soilVegFID"] in ("HXGEO", "PXOP")
