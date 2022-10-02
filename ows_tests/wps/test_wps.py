@@ -197,7 +197,7 @@ class TestWPS:
                 
     def test_009_soil_texture_hsg(self):
         ofile = self._run_job_request(
-            './ows_tests/wps/request-soil-texture-hsg.xml',
+            './tests/wps/request-soil-texture-hsg.xml',
             '.zip'
         )
 
