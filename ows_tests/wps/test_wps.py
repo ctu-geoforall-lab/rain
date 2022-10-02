@@ -4,7 +4,7 @@ import tempfile
 from csv import DictReader
 from pathlib import Path
 from owslib.wps import WebProcessingService, monitorExecution, ComplexDataInput
-from osgeo import ogr
+from osgeo import ogr, gdal
 
 class TestWPS:
     input_data=ComplexDataInput("http://rain.fsv.cvut.cz/geodata/test.gml")
@@ -197,10 +197,17 @@ class TestWPS:
                 
     def test_009_soil_texture_hsg(self):
         ofile = self._run_job_request(
-            './tests/wps/request-soil-texture-hsg.xml',
+            './ows_tests/wps/request-soil-texture-hsg.xml',
             '.zip'
         )
-        # broken ...
+
+        geo_transform = (-717742.5, 20.0, 0.0, -1083242.5, 0.0, -20.0)
+        for name in ('sand', 'clay', 'usda-texture-class', 'silt'):
+            ds = gdal.Open(f'/vsizip/{ofile}/{name}.tif')
+            assert ds
+            assert ds.RasterCount == 1
+            assert ds.GetGeoTransform() == geo_transform
+            ds = None
 
     def test_010_smoderp2d_capabilities(self):
         processes = self._wps('https://rain1.fsv.cvut.cz:4444/services/wps').processes
