@@ -38,7 +38,7 @@ class SoilTextureHsgProcess(Process):
 
         super(SoilTextureHsgProcess, self).__init__(
             self._handler,
-            identifier="soil-texture-hsg-issue",
+            identifier="soil-texture-hsg",
             version="1.0",
             title="Zrnitost a hydrologicka skupina pudy",
             abstract="Sluzba vraci vyrez rastru zvolene hydropedologicke charakteristiky dle zadaneho polygonu o velikosti do 20 km2.",

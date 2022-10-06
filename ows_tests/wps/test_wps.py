@@ -7,6 +7,8 @@ from owslib.wps import WebProcessingService, monitorExecution, ComplexDataInput
 from osgeo import ogr, gdal
 
 class TestWPS:
+    url='https://rain1.fsv.cvut.cz/services/wps'
+    # url='http://localhost/services/wps'
     input_data=ComplexDataInput("http://rain.fsv.cvut.cz/geodata/test.gml")
     key="HLGP_ID"
     return_period="N2,N5,N100"
@@ -18,7 +20,7 @@ class TestWPS:
 
     def _wps(self, url=None):
         return WebProcessingService(
-            url if url else 'https://rain1.fsv.cvut.cz/services/wps'
+            url if url else self.url
         )
 
     def _get_filename(self):
@@ -89,7 +91,7 @@ class TestWPS:
     def test_002_d_rain_shp_post(self):
         """Test d-rain-shp (post method)."""
         ofile = self._run_job_request(
-            './tests/wps/request-d-rain-shp.xml',
+            Path(__file__).parent / 'request-d-rain-shp.xml',
             '.zip'
         )
 
@@ -197,7 +199,7 @@ class TestWPS:
                 
     def test_009_soil_texture_hsg(self):
         ofile = self._run_job_request(
-            './tests/wps/request-soil-texture-hsg.xml',
+            Path(__file__).parent / 'request-soil-texture-hsg.xml',
             '.zip'
         )
 
@@ -216,7 +218,7 @@ class TestWPS:
 
     def test_011_smoderp2d_line(self):
         ofile = self._run_job_request(        
-            './tests/wps/request-smoderp2d-line.xml',
+            Path(__file__).parent / 'request-smoderp2d-line.xml',
             '.csv',
             'https://rain1.fsv.cvut.cz:4444/services/wps'
         )
