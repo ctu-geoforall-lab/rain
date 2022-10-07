@@ -55,7 +55,7 @@ class SoilTextureHsgProcess(Process):
         
     def _handler(self, request, response):
         # check layers
-        layers = [l.data for l in request.inputs['layers']]
+        layers = [l.data.strip() for l in request.inputs['layers']]
         for lyr in layers:
             if lyr not in self.layers:
                 raise ProcessError("Neplatna vrstva: {}".format(lyr))
