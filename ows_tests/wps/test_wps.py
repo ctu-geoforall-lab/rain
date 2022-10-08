@@ -7,8 +7,8 @@ from owslib.wps import WebProcessingService, monitorExecution, ComplexDataInput
 from osgeo import ogr, gdal
 
 class TestWPS:
-    url='https://rain1.fsv.cvut.cz/services/wps'
-    # url='http://localhost/services/wps'
+    # url='https://rain1.fsv.cvut.cz/services/wps'
+    url='http://localhost/services/wps'
     input_data=ComplexDataInput("http://rain.fsv.cvut.cz/geodata/test.gml")
     key="HLGP_ID"
     return_period="N2,N5,N100"
@@ -42,16 +42,24 @@ class TestWPS:
 
         return ofile
 
-    def _run_job_request(self, request_file, ext, url=None):
+    def _run_job_request(self, request_file, ext=None, url=None,
+                         exception=None):
         with open(request_file,'rb') as fd:
             request = fd.read()
         execution = self._wps(url).execute(None, [], request=request)
         monitorExecution(execution)
-        assert execution.getStatus() == "ProcessSucceeded"
-        ofile = self._get_filename() + ext
-        execution.getOutput(ofile)
 
-        return ofile
+        if exception is None:
+            assert execution.getStatus() == "ProcessSucceeded"
+            ofile = self._get_filename() + ext
+            execution.getOutput(ofile)
+            return ofile
+        else:
+            assert len(execution.errors) > 0
+            assert execution.getStatus() == "Exception"
+            assert str(execution.errors[0].text).startswith(exception)
+
+        return None
     
     def _process_d_rain_output(self, ofile, units=False):
         if Path(ofile).suffix == '.zip':
@@ -211,12 +219,18 @@ class TestWPS:
             assert ds.GetGeoTransform() == geo_transform
             ds = None
 
-    def test_010_smoderp2d_capabilities(self):
+    def test_010_soil_texture_hsg20km2(self):
+        ofile = self._run_job_request(
+            Path(__file__).parent / 'request-soil-texture-hsg20km2.xml',
+            exception="Process error: Limit 20km2 na vymeru zajmoveho uzemi prekrocen"
+        )
+
+    def test_011_smoderp2d_capabilities(self):
         processes = self._wps('https://rain1.fsv.cvut.cz:4444/services/wps').processes
         assert len(processes) == 2
         assert any(process.identifier.startswith('smoderp') for process in processes)
 
-    def test_011_smoderp2d_line(self):
+    def test_012_smoderp2d_line(self):
         ofile = self._run_job_request(        
             Path(__file__).parent / 'request-smoderp2d-line.xml',
             '.csv',
