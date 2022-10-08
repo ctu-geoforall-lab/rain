@@ -22,8 +22,9 @@ class SoilTextureHsgProcess(Process):
             LiteralInput(
                 identifier="layers",
                 title="Vrstvy hydropedologickych charakteristik ({})".format(",".join(self.layers)),
-                data_type='string'
-                #               , allowed_values=self.layers
+                data_type='string',
+                allowed_values=self.layers,
+                max_occurs=4
             )
         ]
         outputs = [
@@ -54,7 +55,7 @@ class SoilTextureHsgProcess(Process):
         
     def _handler(self, request, response):
         # check layers
-        layers = request.inputs['layers'][0].data.split(",")
+        layers = [l.data.strip() for l in request.inputs['layers']]
         for lyr in layers:
             if lyr not in self.layers:
                 raise ProcessError("Neplatna vrstva: {}".format(lyr))

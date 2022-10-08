@@ -38,15 +38,26 @@
     <wps:Input>
       <ows:Identifier>layers</ows:Identifier>
       <wps:Data>
-	<wps:LiteralData>sand,silt</wps:LiteralData>
+	<wps:LiteralData>sand</wps:LiteralData>
+      </wps:Data>
+    </wps:Input>
+    <wps:Input>
+      <ows:Identifier>layers</ows:Identifier>
+      <wps:Data>
+	<wps:LiteralData>silt</wps:LiteralData>
+      </wps:Data>
+    </wps:Input>
+    <wps:Input>
+      <ows:Identifier>layers</ows:Identifier>
+      <wps:Data>
+	<wps:LiteralData>clay</wps:LiteralData>
+      </wps:Data>
+    </wps:Input>
+    <wps:Input>
+      <ows:Identifier>layers</ows:Identifier>
+      <wps:Data>
+	<wps:LiteralData>usda-texture-class</wps:LiteralData>
       </wps:Data>
     </wps:Input>
   </wps:DataInputs>
-  <!-- <wps:ResponseForm> -->
-  <!--   <wps:ResponseDocument lineage="false" storeExecuteResponse="false" status="false"> -->
-  <!--     <wps:Output asreference="false" mimeType="application/x-zipped-shp"> -->
-  <!--       <ows:Identifier>output</ows:Identifier> -->
-  <!--     </wps:Output> -->
-  <!--   </wps:ResponseDocument> -->
-  <!-- </wps:ResponseForm> -->
 </wps:Execute>

@@ -7,7 +7,7 @@ while true; do
     LOGFILE=/var/log/ows_tests/rain_ows_tests-`date -Is`.log
     RETCODE=0
     echo "============================= WPS TESTS ==============================" > $LOGFILE
-    python3 -m pytest -v -s -o cache_dir=/tmp/pytest_cache_dir ./tests/wps/test_wps.py >> $LOGFILE
+    python3 -m pytest -v -o cache_dir=/tmp/pytest_cache_dir ./tests/wps/test_wps.py >> $LOGFILE
     RETCODE=$((RETCODE+$?))
     python notifier.py $RETCODE $LOGFILE
     echo "Sleeping for ${OWS_TEST_REPEAT}hrs..."
