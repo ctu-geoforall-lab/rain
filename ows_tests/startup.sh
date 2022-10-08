@@ -1,6 +1,7 @@
 #!/bin/bash
 
-sleep 10
+sleep 60
+
 while true; do
     cd /opt
     echo "Performing tests..."
