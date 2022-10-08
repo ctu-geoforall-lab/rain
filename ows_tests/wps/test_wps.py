@@ -7,8 +7,8 @@ from owslib.wps import WebProcessingService, monitorExecution, ComplexDataInput
 from osgeo import ogr, gdal
 
 class TestWPS:
-    # url='https://rain1.fsv.cvut.cz/services/wps'
-    url='http://localhost/services/wps'
+    url='https://rain1.fsv.cvut.cz/services/wps'
+    # url='http://localhost/services/wps'
     input_data=ComplexDataInput("http://rain.fsv.cvut.cz/geodata/test.gml")
     key="HLGP_ID"
     return_period="N2,N5,N100"
