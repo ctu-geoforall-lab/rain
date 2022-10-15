@@ -25,6 +25,7 @@ from grass.exceptions import CalledModuleError
 
 from pywps import Process, ComplexInput, LiteralInput, Format, ComplexOutput, LiteralOutput, LOGGER
 from pywps.app.exceptions import ProcessError
+from pywps.validator.mode import MODE
 
 class SubDayPrecipProcess(Process):
      def __init__(self, identifier, description,
@@ -68,12 +69,17 @@ class SubDayPrecipProcess(Process):
                )
           
           if 'return_period' in input_params:
+               return_periods = ["N2", "N5", "N10", "N20", "N50", "N100"]
+
                inputs.append(LiteralInput(
                     identifier="return_period",
                     title="Doby opakovani",
                     data_type='string',
-                    default="N2,N5,N10,N20,N50,N100")
-               )
+                    allowed_values=return_periods,
+                    max_occurs=len(return_periods),
+                    default=','.join(return_periods),
+                    mode=MODE.NONE
+               ))
           
           if 'rainlength' in input_params:
                inputs.append(LiteralInput(
@@ -101,12 +107,16 @@ class SubDayPrecipProcess(Process):
                )
 
           if 'type' in input_params:
+               types = ['A', 'B', 'C', 'D', 'E', 'F']
                inputs.append(LiteralInput(
                     identifier="type",
                     title="Typy rozlozeni srazky",
                     data_type='string',
-                    default='A,B,C,D,E,F')
-               )
+                    allowed_values=types,
+                    max_occurs=len(types),
+                    default=','.join(types),
+                    mode=MODE.NONE
+               ))
 
           if 'output_shp' in output_params:
                outputs.append(ComplexOutput(
@@ -178,11 +188,11 @@ class SubDayPrecipProcess(Process):
           if 'keycolumn' in request.inputs.keys():
                self.keycolumn = request.inputs['keycolumn'][0].data
           if 'return_period' in request.inputs.keys():
-               self.return_period = request.inputs['return_period'][0].data.split(',')
+               self.return_period = [rp.data.strip() for rp in request.inputs['return_period']]
           if 'rainlength' in request.inputs.keys():
                self.rainlength = request.inputs['rainlength'][0].data
           if 'type' in request.inputs.keys():
-               self.shapetype = request.inputs['type'][0].data.split(',')
+               self.shapetype = [st.data.strip() for st in request.inputs['type']]
           if 'value' in request.inputs.keys():
                self.value = request.inputs['value'][0].data
           if 'area_size' in request.inputs.keys():

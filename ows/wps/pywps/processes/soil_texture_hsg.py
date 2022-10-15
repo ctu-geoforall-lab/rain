@@ -24,7 +24,7 @@ class SoilTextureHsgProcess(Process):
                 title="Vrstvy hydropedologickych charakteristik ({})".format(",".join(self.layers)),
                 data_type='string',
                 allowed_values=self.layers,
-                max_occurs=4
+                max_occurs=len(self.layers)
             )
         ]
         outputs = [
