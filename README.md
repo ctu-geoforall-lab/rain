@@ -76,3 +76,11 @@ Run tests:
 ### Documentation
 
 http://localhost/docs
+
+### Notes
+
+#### Delete pywps zombie processes
+
+```sql
+delete from pywps_requests where status=2;
+```

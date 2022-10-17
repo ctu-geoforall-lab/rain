@@ -26,7 +26,7 @@ class SubDayPrecipPoint(SubDayPrecipProcess):
           )
 
      def _handler(self, request, response):
-          self.rasters = request.inputs['return_period'][0].data.split(',')
+          self.rasters= [rp.data.strip() for rp in request.inputs['return_period']]
           self.rainlength = request.inputs['rainlength'][0].data
 
           Module('g.region', raster=self.rasters[0])

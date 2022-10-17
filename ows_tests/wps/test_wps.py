@@ -11,10 +11,10 @@ class TestWPS:
     # url='http://localhost/services/wps'
     input_data=ComplexDataInput("http://rain.fsv.cvut.cz/geodata/test.gml")
     key="HLGP_ID"
-    return_period="N2,N5,N100"
+    return_period=["N2","N5","N100"]
     rainlength="360"
     keycolumn="HLGP_ID"
-    stype="E,F"
+    type=["E", "F"]
     value="25"
     area_size="10000"
 
@@ -22,6 +22,9 @@ class TestWPS:
         return WebProcessingService(
             url if url else self.url
         )
+
+    def _request_multi(self, option):
+        return [(option, x) for x in getattr(self, option)]
 
     def _get_filename(self):
         return str(Path(tempfile._get_default_tempdir()) / next(tempfile._get_candidate_names()))
@@ -94,7 +97,7 @@ class TestWPS:
 
     def _get_fields(self, units):
         units_str = "_mm" if units else ""
-        return [f'H_{x}T{self.rainlength}{units_str}' for x in self.return_period.split(',')]
+        return [f'H_{x}T{self.rainlength}{units_str}' for x in self.return_period]
 
     def test_002_d_rain_shp_post(self):
         """Test d-rain-shp (post method)."""
@@ -112,9 +115,9 @@ class TestWPS:
         ofile = self._run_job(
             'd-rain-shp',
             [("input", self.input_data),
-             ("return_period", self.return_period),
              ("rainlength", self.rainlength),
-             ("area_size", self.area_size)],
+             ("area_size", self.area_size)
+            ] + self._request_multi("return_period"),
             '.zip'
         )
         self._process_d_rain_output(
@@ -126,10 +129,10 @@ class TestWPS:
         ofile = self._run_job(
             'd-rain-csv',
             [("input", self.input_data),
-             ("return_period", self.return_period),
              ("rainlength", self.rainlength),
              ("keycolumn", self.keycolumn),
-             ("area_size", self.area_size)],
+             ("area_size", self.area_size)
+            ] + self._request_multi("return_period"),
             '.csv'
         )
         self._process_d_rain_output(
@@ -143,8 +146,8 @@ class TestWPS:
             'd-rain-point',
             [("obs_x", "15.11784"),
              ("obs_y", "49.88598"),
-             ("return_period", self.return_period),
-             ("rainlength", self.rainlength)],
+             ("rainlength", self.rainlength)
+            ] + self._request_multi("return_period"),
             '.txt'
         )
         with open(ofile) as fd:
@@ -152,9 +155,9 @@ class TestWPS:
 
     def _process_d_rain6h_timedist(self, ofile):
         fields = []
-        for rp in self.return_period.split(','):
+        for rp in self.return_period:
             fields.append(f"H_{rp}T{self.rainlength}_mm")
-            for st in self.stype.split(','):
+            for st in self.type:
                 fields.append(f"P_{rp}typ{st}_%")
         with open(ofile) as fd:
             data = DictReader(fd)
@@ -170,9 +173,8 @@ class TestWPS:
         ofile = self._run_job(
             'd-rain6h-timedist',
             [("input", self.input_data),
-             ("return_period", self.return_period),
              ("keycolumn", self.keycolumn),
-             ("type", self.stype)],
+            ] + self._request_multi("return_period") + self._request_multi("type"),
             '.csv'
         )
         self._process_d_rain6h_timedist(ofile)
@@ -181,10 +183,9 @@ class TestWPS:
         ofile = self._run_job(
             'd-rain6h-timedist',
             [("input", self.input_data),
-             ("return_period", self.return_period),
              ("keycolumn", self.keycolumn),
-             ("type", self.stype),
-             ("area_red", "false")],
+             ("area_red", "false")
+            ] + self._request_multi("return_period") + self._request_multi("type"),
             '.csv'
         )
         self._process_d_rain6h_timedist(ofile)
@@ -193,7 +194,7 @@ class TestWPS:
         ofile = self._run_job(
             'raintotal6h-timedist',
             [("value", self.value),
-             ("type", self.stype)],
+            ] + self._request_multi("type"),
             '.csv'
         )
         with open(ofile) as fd:
@@ -201,7 +202,7 @@ class TestWPS:
             time = 5
             for row in data:
                 assert int(row["CAS_min"]) == time
-                for st in self.stype.split(','):
+                for st in self.type:
                     assert float(row[f"H_typ{st}_mm"]) > 0                
                 time += 5
                 

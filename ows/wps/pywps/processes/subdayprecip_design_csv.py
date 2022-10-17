@@ -13,7 +13,7 @@ import os
 import sys
 from subprocess import PIPE
 
-from . import SubDayPrecipProcess, LOGGER
+from . import SubDayPrecipProcess
 from grass.pygrass.modules import Module
 
 class SubDayPrecipCsv(SubDayPrecipProcess):
