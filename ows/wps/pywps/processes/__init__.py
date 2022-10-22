@@ -97,15 +97,6 @@ class SubDayPrecipProcess(Process):
                     min_occurs=0)
                )
 
-          if 'area_red' in input_params:
-               inputs.append(LiteralInput(
-                    identifier="area_red",
-                    title="Provest redukci uhrnu pro povodi nad 20 km2",
-                    data_type='boolean',
-                    default='true',
-                    min_occurs=0)
-               )
-
           if 'type' in input_params:
                types = ['A', 'B', 'C', 'D', 'E', 'F']
                inputs.append(LiteralInput(
@@ -117,6 +108,15 @@ class SubDayPrecipProcess(Process):
                     default=','.join(types),
                     mode=MODE.NONE
                ))
+
+          if 'area_red' in input_params:
+               inputs.append(LiteralInput(
+                    identifier="area_red",
+                    title="Provest redukci uhrnu pro povodi nad 20 km2",
+                    data_type='boolean',
+                    default='true',
+                    min_occurs=0)
+               )
 
           if 'output_shp' in output_params:
                outputs.append(ComplexOutput(
