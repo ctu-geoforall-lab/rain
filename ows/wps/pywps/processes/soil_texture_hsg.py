@@ -4,13 +4,14 @@ from subprocess import PIPE
 
 from pywps import Process, ComplexInput, LiteralInput, ComplexOutput, Format, LOGGER
 from pywps.app.exceptions import ProcessError
+from pywps.validator.mode import MODE
 
 from grass.exceptions import CalledModuleError
 from grass.pygrass.modules import Module
 
 class SoilTextureHsgProcess(Process):
     def __init__(self):
-        self.layers = ["sand", "silt", "clay", "usda-texture-class"]
+        self.layers = ["hsg", "usda-texture-class", "sand", "silt", "clay"]
         inputs = [
             ComplexInput(
                 identifier="input",
@@ -24,7 +25,9 @@ class SoilTextureHsgProcess(Process):
                 title="Vrstvy hydropedologickych charakteristik ({})".format(",".join(self.layers)),
                 data_type='string',
                 allowed_values=self.layers,
-                max_occurs=len(self.layers)
+                max_occurs=len(self.layers),
+                default=','.join(self.layers[:2]),
+                mode=MODE.NONE
             )
         ]
         outputs = [
