@@ -69,8 +69,8 @@ wget -q --post-file ./ows/wps/tests/request-d-rain-shp.xml 'http://localhost/ser
 
 Run tests:
 
-```
-./ows/wps/tests/autotest.sh
+```sh
+docker-compose exec ows_tests python3 -m pytest -v -o cache_dir=/tmp/pytest_cache_dir ./tests/wps/test_wps.py
 ```
 
 ### Documentation
