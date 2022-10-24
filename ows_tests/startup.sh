@@ -4,6 +4,8 @@ sleep 60
 
 while true; do
     cd /opt
+    echo "Removing zombie processes older than one day"
+    python remove_zombie_processes.py /data/pywps.db 1
     echo "Performing tests..."
     LOGFILE=/var/log/ows_tests/rain_ows_tests-`date -Is`.log
     RETCODE=0

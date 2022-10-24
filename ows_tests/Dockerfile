@@ -12,7 +12,7 @@ WORKDIR /opt
 
 # set up notifier
 RUN mkdir /var/log/ows_tests
-COPY notifier.py /opt/
+COPY remove_zombie_processes.py notifier.py /opt/
 
 COPY startup.sh /opt/
 RUN chmod 755 /opt/startup.sh
