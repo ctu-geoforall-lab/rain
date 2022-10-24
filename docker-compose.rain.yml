@@ -157,6 +157,7 @@ services:
     volumes:
       - ./ows_tests/wps:/opt/tests/wps
       - ./ows_tests/log/:/var/log/ows_tests
+      - ./ows/wps/log/:/data
     environment:
       - OWS_TEST_REPEAT=24
     env_file:
