@@ -231,9 +231,9 @@ class TestWPS:
         assert len(processes) == 2
         assert any(process.identifier.startswith('smoderp') for process in processes)
 
-    def test_012_smoderp2d_line(self):
+    def test_012_profile1d(self):
         ofile = self._run_job_request(        
-            Path(__file__).parent / 'request-smoderp2d-line.xml',
+            Path(__file__).parent / 'request-profile1d.xml',
             '.csv',
             'https://rain1.fsv.cvut.cz:4444/services/wps'
         )
