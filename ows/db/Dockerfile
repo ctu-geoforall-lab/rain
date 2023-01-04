@@ -1,4 +1,4 @@
-FROM postgis/postgis:10-3.1
+FROM postgis/postgis:15-3.3
 
 ADD conf.sql /docker-entrypoint-initdb.d/97_conf.sql
 ADD epsg5514.sql /docker-entrypoint-initdb.d/98_epsg5514.sql
