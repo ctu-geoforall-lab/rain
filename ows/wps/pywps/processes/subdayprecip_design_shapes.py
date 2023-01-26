@@ -65,6 +65,16 @@ class SubDayPrecipShapes(SubDayPrecipShapesBase, SubDayPrecipProcess):
                     self.v_rast_stats(rast_name, columns[-1])
                i += 1
 
+          # QAPI
+          for stype in self.shapetype:
+               columns.append('qapi_{types}_perc'.format(
+                    types=stype, n=n
+               ))
+               rast_name = 'a06_t{types}z_1@{ms}'.format(
+                    types=stype, ms=self.mapset
+               )
+               self.v_rast_stats(rast_name, columns[-1])
+
           return gscript.vector_db_select(
                map=self.map_name,
                columns=','.join(map(lambda x: '{}_average'.format(x), columns))
@@ -140,6 +150,11 @@ class SubDayPrecipShapes(SubDayPrecipShapesBase, SubDayPrecipProcess):
                     fd.write('{sep}P_{rast}typ{stype}_%'.format(
                          sep=self.sep, stype=stype, rast=rp)
                     )
+          # QAPI columns
+          for stype in self.shapetype:
+               fd.write('{sep}QAPI_typ{stype}_%'.format(
+                    sep=self.sep, stype=stype)
+               )
           fd.write(nl)
 
           # compute timeshape percentage
@@ -163,6 +178,8 @@ class SubDayPrecipShapes(SubDayPrecipShapesBase, SubDayPrecipProcess):
                     fd.write('{sep}{val:.1f}'.format(
                          sep=self.sep, val=val
                     ))
+               # for stype in self.shapetype:
+               #      fd.write('{sep}-1'.format(sep=self.sep))
                fd.write(nl)
 
 if __name__ == "__main__":
