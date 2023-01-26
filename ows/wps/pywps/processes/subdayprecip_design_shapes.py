@@ -20,7 +20,7 @@ import grass.script as gscript # TODO: replace by pyGRASS
 
 class SubDayPrecipShapesBase(object):
      def __init__(self):
-          self.mapset = 'rl360'
+          self.mapset = 'rl360_v2'
           self.sep = ','
           self.rainlength = '360'
 
@@ -59,8 +59,8 @@ class SubDayPrecipShapes(SubDayPrecipShapesBase, SubDayPrecipProcess):
                     columns.append('c{types}_{n}yr_perc'.format(
                          types=stype, n=n
                     ))
-                    rast_name = 'sjtsk_zastoupeni_shluku_c{types}_{n}yr_perc@{ms}'.format(
-                         types=stype, n=n, ms=self.mapset
+                    rast_name = '{types}_{n:03d}@{ms}'.format(
+                         types=stype, n=int(n), ms=self.mapset
                     )
                     self.v_rast_stats(rast_name, columns[-1])
                i += 1

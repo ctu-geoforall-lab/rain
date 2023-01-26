@@ -298,7 +298,7 @@ class SubDayPrecipProcess(Process):
 
                n = rp.lstrip('N')
                col_name = 'H_N{n}T360'.format(n=n)
-               rast_name = 'sjtsk_navrhove_srazky_6h_P_{n}yr_6h_mm@{ms}'.format(
+               rast_name = 'H_N{n}T360@{ms}'.format(
                     n=n, ms=self.mapset
                )
                self.v_rast_stats(rast_name, col_name)
