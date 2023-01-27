@@ -7,14 +7,14 @@ from owslib.wps import WebProcessingService, monitorExecution, ComplexDataInput
 from osgeo import ogr, gdal
 
 class TestWPS:
-    url='https://rain1.fsv.cvut.cz/services/wps'
-    # url='http://localhost/services/wps'
+    # url='https://rain1.fsv.cvut.cz/services/wps'
+    url='http://localhost/services/wps'
     input_data=ComplexDataInput("http://rain.fsv.cvut.cz/geodata/test.gml")
     key="HLGP_ID"
     return_period=["N2","N5","N100"]
     rainlength="360"
     keycolumn="HLGP_ID"
-    type=["E", "F"]
+    shape=["E", "F"]
     value="25"
     area_size="10000"
     num_processes = 3
@@ -68,8 +68,10 @@ class TestWPS:
         fields = []
         for rp in self.return_period:
             fields.append(f"H_{rp}T{self.rainlength}_mm")
-            for st in self.type:
-                fields.append(f"P_{rp}typ{st}_%")
+            for st in self.shape:
+                fields.append(f"P_{rp}tvar{st}_%")
+            for st in self.shape:
+                fields.append(f"QAPI_tvar{st}")
         with open(ofile) as fd:
             data = DictReader(fd)
             nlines = 0
@@ -85,7 +87,7 @@ class TestWPS:
             'd-rain6h-timedist',
             [("input", self.input_data),
              ("keycolumn", self.keycolumn),
-            ] + self._request_multi("return_period") + self._request_multi("type"),
+            ] + self._request_multi("return_period") + self._request_multi("shape"),
             '.csv'
         )
         self._process_d_rain6h_timedist(ofile)
@@ -96,7 +98,7 @@ class TestWPS:
             [("input", self.input_data),
              ("keycolumn", self.keycolumn),
              ("area_red", "false")
-            ] + self._request_multi("return_period") + self._request_multi("type"),
+            ] + self._request_multi("return_period") + self._request_multi("shape"),
             '.csv'
         )
         self._process_d_rain6h_timedist(ofile)
@@ -105,7 +107,7 @@ class TestWPS:
         ofile = self._run_job(
             'raintotal6h-timedist',
             [("value", self.value),
-            ] + self._request_multi("type"),
+            ] + self._request_multi("shape"),
             '.csv'
         )
         with open(ofile) as fd:
@@ -113,8 +115,8 @@ class TestWPS:
             time = 5
             for row in data:
                 assert int(row["CAS_min"]) == time
-                for st in self.type:
-                    assert float(row[f"H_typ{st}_mm"]) > 0                
+                for st in self.shape:
+                    assert float(row[f"H_tvar{st}_mm"]) > 0                
                 time += 5
                 
     def test_005_soil_texture_hsg(self):

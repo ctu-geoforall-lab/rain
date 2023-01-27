@@ -20,7 +20,7 @@ import grass.script as gscript # TODO: replace by pyGRASS
 
 class SubDayPrecipShapesBase(object):
      def __init__(self):
-          self.mapset = 'rl360'
+          self.mapset = 'rl360_v2'
           self.sep = ','
           self.rainlength = '360'
 
@@ -41,9 +41,11 @@ class SubDayPrecipShapes(SubDayPrecipShapesBase, SubDayPrecipProcess):
      def __init__(self):
           SubDayPrecipProcess.__init__(self,
                identifier="d-rain6h-timedist",
-               description=u"Vraci tvary navrhovych srazek v tabulkove forme s pevne stanovenou delkou srazky 6 hodin.",
-               input_params=['input', 'keycolumn', 'return_period', 'type', 'area_red'],
-               output_params=['output_shapes', 'output_probabilities']
+               title="Nástroj d-rain6h-timedist vrací šest variant průběhu pětiminutových intenzit 6hodinových návrhových srážek zvolené doby opakování, včetně pravděpodobnosti výskytu daného průběhu v zadané lokalitě.",
+               abstract="Nástroj d-rain6h-timedist vrací šest variant průběhu pětiminutových intenzit 6hodinových návrhových srážek zvolené doby opakování, včetně pravděpodobnosti výskytu daného průběhu v zadané lokalitě (definované jako bod nebo polygon). Celkový úhrn všech šesti variant průběhů je vždy stejný a je odvozen regionální frekvenční analýzou šestihodinových maximálních úhrnů z 10leté řady radarových odrazivostí a delších, dostupných řad staničních měření (viz Datové podklady). Při výpočtu je kontrolováno, zda plocha území přesáhla plochu 20 km2 a v kladném případě nástroj provádí redukci celkového úhrnu. Výstup nástroje je ve formátu CSV a jeho struktura je totožná s výstupem webové mapové aplikace na platformě Gisquick, která tento nástroj používá k vyčíslení návrhové srážky na pevně definovaných povodích IV. řádu.",
+               input_params=['input', 'keycolumn', 'return_period', 'shape', 'area_red'],
+               output_params=['output_shapes', 'output_probabilities'],
+               version=3.0
           )
           SubDayPrecipShapesBase.__init__(self)
 
@@ -59,11 +61,21 @@ class SubDayPrecipShapes(SubDayPrecipShapesBase, SubDayPrecipProcess):
                     columns.append('c{types}_{n}yr_perc'.format(
                          types=stype, n=n
                     ))
-                    rast_name = 'sjtsk_zastoupeni_shluku_c{types}_{n}yr_perc@{ms}'.format(
-                         types=stype, n=n, ms=self.mapset
+                    rast_name = '{types}_{n:03d}@{ms}'.format(
+                         types=stype, n=int(n), ms=self.mapset
                     )
                     self.v_rast_stats(rast_name, columns[-1])
                i += 1
+
+          # QAPI
+          for stype in self.shapetype:
+               columns.append('qapi_{types}_perc'.format(
+                    types=stype, n=n
+               ))
+               rast_name = 'a06_t{types}z_1@{ms}'.format(
+                    types=stype, ms=self.mapset
+               )
+               self.v_rast_stats(rast_name, columns[-1])
 
           return gscript.vector_db_select(
                map=self.map_name,
@@ -137,9 +149,14 @@ class SubDayPrecipShapes(SubDayPrecipShapesBase, SubDayPrecipProcess):
           # P columns
           for rp in self.return_period:
                for stype in self.shapetype:
-                    fd.write('{sep}P_{rast}typ{stype}_%'.format(
+                    fd.write('{sep}P_{rast}tvar{stype}_%'.format(
                          sep=self.sep, stype=stype, rast=rp)
                     )
+          # QAPI columns
+          for stype in self.shapetype:
+               fd.write('{sep}QAPI_tvar{stype}'.format(
+                    sep=self.sep, stype=stype)
+               )
           fd.write(nl)
 
           # compute timeshape percentage
@@ -163,6 +180,8 @@ class SubDayPrecipShapes(SubDayPrecipShapesBase, SubDayPrecipProcess):
                     fd.write('{sep}{val:.1f}'.format(
                          sep=self.sep, val=val
                     ))
+               # for stype in self.shapetype:
+               #      fd.write('{sep}-1'.format(sep=self.sep))
                fd.write(nl)
 
 if __name__ == "__main__":

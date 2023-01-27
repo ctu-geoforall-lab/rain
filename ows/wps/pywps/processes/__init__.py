@@ -28,9 +28,11 @@ from pywps.app.exceptions import ProcessError
 from pywps.validator.mode import MODE
 
 class SubDayPrecipProcess(Process):
-     def __init__(self, identifier, description,
+     def __init__(self, identifier, title,
+                  version=1.0, abstract='',
                   location='/data/grassdata/subdayprecip-design',
                   input_params=[], output_params=[]):
+          
           inputs = []
           outputs = []
           if 'input' in input_params:
@@ -97,11 +99,11 @@ class SubDayPrecipProcess(Process):
                     min_occurs=0)
                )
 
-          if 'type' in input_params:
+          if 'shape' in input_params:
                types = ['A', 'B', 'C', 'D', 'E', 'F']
                inputs.append(LiteralInput(
-                    identifier="type",
-                    title="Typy rozlozeni srazky",
+                    identifier="shape",
+                    title="Tvar rozlozeni srazky",
                     data_type='string',
                     allowed_values=types,
                     max_occurs=len(types),
@@ -160,9 +162,9 @@ class SubDayPrecipProcess(Process):
           super(SubDayPrecipProcess, self).__init__(
                self._handler,
                identifier=identifier,
-               version="2.0",
-               title="Navrhova srazka pro zvolenou lokalitu. " + description,
-               abstract="Pocita navrhovou srazku pro zvolenou lokalitu s vyuzitim nastroje GRASS GIS r.subdayprecip.design. Vice informaci na http://rain.fsv.cvut.cz/nastroje/r.subdayprecip.design",
+               version=version,
+               title=title,
+               abstract=abstract,
                inputs=inputs,
                outputs=outputs,
                grass_location=location,
@@ -191,8 +193,8 @@ class SubDayPrecipProcess(Process):
                self.return_period = [rp.data.strip() for rp in request.inputs['return_period']]
           if 'rainlength' in request.inputs.keys():
                self.rainlength = request.inputs['rainlength'][0].data
-          if 'type' in request.inputs.keys():
-               self.shapetype = [st.data.strip() for st in request.inputs['type']]
+          if 'shape' in request.inputs.keys():
+               self.shapetype = [st.data.strip() for st in request.inputs['shape']]
           if 'value' in request.inputs.keys():
                self.value = request.inputs['value'][0].data
           if 'area_size' in request.inputs.keys():
@@ -298,7 +300,7 @@ class SubDayPrecipProcess(Process):
 
                n = rp.lstrip('N')
                col_name = 'H_N{n}T360'.format(n=n)
-               rast_name = 'sjtsk_navrhove_srazky_6h_P_{n}yr_6h_mm@{ms}'.format(
+               rast_name = 'H_N{n}T360@{ms}'.format(
                     n=n, ms=self.mapset
                )
                self.v_rast_stats(rast_name, col_name)
