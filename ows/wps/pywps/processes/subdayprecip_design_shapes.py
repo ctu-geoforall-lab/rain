@@ -41,9 +41,11 @@ class SubDayPrecipShapes(SubDayPrecipShapesBase, SubDayPrecipProcess):
      def __init__(self):
           SubDayPrecipProcess.__init__(self,
                identifier="d-rain6h-timedist",
-               description=u"Vraci tvary navrhovych srazek v tabulkove forme s pevne stanovenou delkou srazky 6 hodin.",
-               input_params=['input', 'keycolumn', 'return_period', 'type', 'area_red'],
-               output_params=['output_shapes', 'output_probabilities']
+               title="Nástroj d-rain6h-timedist vrací šest variant průběhu pětiminutových intenzit 6hodinových návrhových srážek zvolené doby opakování, včetně pravděpodobnosti výskytu daného průběhu v zadané lokalitě.",
+               abstract="Nástroj d-rain6h-timedist vrací šest variant průběhu pětiminutových intenzit 6hodinových návrhových srážek zvolené doby opakování, včetně pravděpodobnosti výskytu daného průběhu v zadané lokalitě (definované jako bod nebo polygon). Celkový úhrn všech šesti variant průběhů je vždy stejný a je odvozen regionální frekvenční analýzou šestihodinových maximálních úhrnů z 10leté řady radarových odrazivostí a delších, dostupných řad staničních měření (viz Datové podklady). Při výpočtu je kontrolováno, zda plocha území přesáhla plochu 20 km2 a v kladném případě nástroj provádí redukci celkového úhrnu. Výstup nástroje je ve formátu CSV a jeho struktura je totožná s výstupem webové mapové aplikace na platformě Gisquick, která tento nástroj používá k vyčíslení návrhové srážky na pevně definovaných povodích IV. řádu.",
+               input_params=['input', 'keycolumn', 'return_period', 'shape', 'area_red'],
+               output_params=['output_shapes', 'output_probabilities'],
+               version=3.0
           )
           SubDayPrecipShapesBase.__init__(self)
 
@@ -147,12 +149,12 @@ class SubDayPrecipShapes(SubDayPrecipShapesBase, SubDayPrecipProcess):
           # P columns
           for rp in self.return_period:
                for stype in self.shapetype:
-                    fd.write('{sep}P_{rast}typ{stype}_%'.format(
+                    fd.write('{sep}P_{rast}tvar{stype}_%'.format(
                          sep=self.sep, stype=stype, rast=rp)
                     )
           # QAPI columns
           for stype in self.shapetype:
-               fd.write('{sep}QAPI_typ{stype}_%'.format(
+               fd.write('{sep}QAPI_tvar{stype}'.format(
                     sep=self.sep, stype=stype)
                )
           fd.write(nl)

@@ -24,9 +24,11 @@ class SubDayPrecipShapesTotal(SubDayPrecipShapesBase, SubDayPrecipProcess):
      def __init__(self):
           SubDayPrecipProcess.__init__(self,
                identifier="raintotal6h-timedist",
-               description=u"Vraci tvary uzivatelem zadane hodnoty srazky v tabulkove forme s pevne stanovenou delkou srazky 6 hodin.",
-               input_params=['value', 'type'],
-               output_params=['output_shapes']
+                                       title="Nástroj raintotal6h-timedist je doplňkovým nástrojem, který vychází z předchozí varianty d-rain-timedist.",
+               abstract="Nástroj raintotal6h-timedist je doplňkovým nástrojem, který vychází z předchozí varianty d-rain-timedist. Návrhová 6hodinová srážka není odvozována pro žádnou konkrétní lokalitu ani dobu opakování, nástroj pouze rozloží uživatelem zadaný 6hodinový úhrn do zvolených variant ze šesti typizovaných průběhů intenzit A–F, bez bližší specifikace pravděpodobnosti jejich výskytu (ta je vázána vždy ke konkrétní lokalitě a době opakování).",
+               input_params=['value', 'shape'],
+               output_params=['output_shapes'],
+               version=3.0
           )
           SubDayPrecipShapesBase.__init__(self)
 
@@ -47,7 +49,7 @@ class SubDayPrecipShapesTotal(SubDayPrecipShapesBase, SubDayPrecipProcess):
           # write header
           fd.write('CAS_min')
           for stype in self.shapetype:
-               fd.write('{sep}H_typ{stype}_mm'.format(
+               fd.write('{sep}H_tvar{stype}_mm'.format(
                     sep=self.sep, stype=stype)
                )
           fd.write('\r\n')
