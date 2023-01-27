@@ -4,11 +4,14 @@ import sqlite3
 def remove_zombie_processes(dbname, days=1):
     with sqlite3.connect(dbname) as con:
         cur = con.cursor()
-        cur.execute(
+        try:
+            cur.execute(
             "DELETE from pywps_requests where status=2 and time_start > DATE('now','-{0} day')".format(
                 days
-        ))
-        con.commit()
+            ))
+            con.commit()
+        except sqlite3.OperationalError as e:
+            print("remove_zombie_processes: {}".format(e))
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
