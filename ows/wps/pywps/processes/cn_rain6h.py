@@ -16,7 +16,7 @@ class CnRain6h(Process):
         outputs = [
         ]
 
-        super(SoilTextureHsgProcess, self).__init__(
+        super().__init__(
             self._handler,
             identifier="cn-rain6h",
             version="1.0",
