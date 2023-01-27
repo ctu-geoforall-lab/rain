@@ -47,12 +47,13 @@ class SoilTextureHsgProcess(Process):
             abstract="Nástroj soil-texture-hsg slouží ke stažení výřezu rastrových dat půdních vlastností pro polygon o výměře do 20 km2. Konkrétně se jedná o tři vrstvy procentuálního zastoupení frakcí písku, prachu a jílu, jednu vrstvu zrnitosti s členěním do 12 tříd dle USDA metodiky a jednu vrstvu hydrologické půdní skupiny. Podkladová data byla odvozena metodami digitálního mapování v rámci projektu Fyzikální a hydropedologické vlastnosti půd ČR.",
             inputs=inputs,
             outputs=outputs,
-            grass_location="/data/grassdata/soil_texture_hsg",
+            grass_location="/data/grass_location",
             store_supported=True,
             status_supported=True)
 
         self.area_limit = 20 # km2
 
+        self.mapset = "soil_texture_hsg"
         os.environ['GRASS_SKIP_MAPSET_OWNER_CHECK'] = '1'
         os.environ['HOME'] = '/tmp' # needed by G_home()
         
@@ -104,13 +105,14 @@ class SoilTextureHsgProcess(Process):
             ))
 
         # set computational region
-        Module("g.region", vector=aoi, align="sand")
+        Module("g.region", vector=aoi, align="sand@{}".format(self.mapset))
         Module("r.mask", vector=aoi)
 
         # export data
         for lyr in layers:
             Module("r.out.gdal", flags="c",
-                   input=lyr, output=os.path.join(output_dir, lyr + ".tif"))
+                   input="{}@{}".format(lyr, self.mapset),
+                   output=os.path.join(output_dir, lyr + ".tif"))
             # copy style
             shutil.copy(
                 "/data/styles/{}.qml".format(lyr),

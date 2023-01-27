@@ -30,7 +30,7 @@ from pywps.validator.mode import MODE
 class SubDayPrecipProcess(Process):
      def __init__(self, identifier, title,
                   version=1.0, abstract='',
-                  location='/data/grassdata/subdayprecip-design',
+                  location='/data/grass_location',
                   input_params=[], output_params=[]):
           
           inputs = []
@@ -220,6 +220,9 @@ class SubDayPrecipProcess(Process):
 
           self._response = response # report_progress() can be called by other methods
 
+          # set computational region
+          Module('g.region', raster="H_N2T360@rain6h")
+
           if 'input' in request.inputs.keys():
                LOGGER.debug("Subday computation started")
                start = time.time()
@@ -338,7 +341,7 @@ class SubDayPrecipProcess(Process):
           # handle NULL values (areas smaller than raster resolution)
           LOGGER.info("Number of small areas: {} (raster: {} column {})".format(
                len(cats), rast_name, col_name))
-          
+
           if len(cats) > 0:
                Module('v.what.rast', map=self.map_name, raster=rast_name, type='centroid',
                       column='{}_average'.format(col_name), where="{}_average is NULL".format(col_name)
