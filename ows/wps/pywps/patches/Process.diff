@@ -1,5 +1,5 @@
---- /var/log/pywps/Process.py	2021-01-13 10:43:04.178810906 +0000
-+++ /usr/local/lib/python3.6/dist-packages/pywps/app/Process.py	2021-01-13 17:55:15.199894101 +0000
+--- Process.py	2021-01-13 10:43:04.178810906 +0000
++++ /usr/local/lib/python3.10/dist-packages/pywps/app/Process.py	2021-01-13 17:55:15.199894101 +0000
 @@ -417,22 +417,23 @@
  
              # create temporary mapset within existing location

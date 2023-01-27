@@ -1,5 +1,4 @@
-# FROM mundialis/grass-py3-pdal:stable-ubuntu
-FROM ubuntu:18.04
+FROM ubuntu:22.04
 
 # install requirements
 RUN apt-get update && apt-get install --yes software-properties-common gettext-base
@@ -20,9 +19,9 @@ RUN rm /etc/nginx/sites-enabled/default
 # install GRASS extensions
 RUN grass --tmp-location EPSG:5514 --exec g.extension -s r.subdayprecip.design
 
-# patch pyWPS 4.2.8
+# patch pyWPS
 COPY wps/pywps/patches/ /tmp/
-RUN patch -p0 < /tmp/Service.diff
+# RUN patch -p0 < /tmp/Service.diff
 RUN patch -p0 < /tmp/Process.diff
 
 # set up MapServer
