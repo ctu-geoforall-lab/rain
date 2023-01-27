@@ -17,7 +17,7 @@ class TestWPS:
     type=["E", "F"]
     value="25"
     area_size="10000"
-
+    num_processes = 3
     def _wps(self, url=None):
         return WebProcessingService(
             url if url else self.url
@@ -32,8 +32,8 @@ class TestWPS:
     def test_001_capabilities(self):
         """Test GetCapapablities."""
         processes = self._wps().processes
-        assert len(processes) > 5
-        assert any(process.identifier.startswith('d-rain') for process in processes)
+        assert len(processes) == self.num_processes
+        assert any(process.identifier.startswith('d-rain6h') for process in processes)
 
     def _run_job(self, process, inputs, ext):
         execution = self._wps().execute(process, inputs)
@@ -64,95 +64,6 @@ class TestWPS:
 
         return None
     
-    def _process_d_rain_output(self, ofile, units=False):
-        if Path(ofile).suffix == '.zip':
-            dsn = '/vsizip/' + ofile
-        else:
-            dsn = ofile
-        ds = ogr.Open(dsn)
-        assert ds
-
-        if Path(ofile).suffix == '.zip':
-            assert ds.GetLayer().GetName() == "subdayprecip_output"
-        else:
-            assert ds.GetLayer().GetName() == Path(ofile).stem
-
-        lyr = ds.GetLayer()
-        assert lyr.GetFeatureCount() == 15
-
-        field_names = [field.name for field in lyr.schema]
-
-        lyr.ResetReading()
-        fields = self._get_fields(units)
-
-        while True:
-            feat = lyr.GetNextFeature()
-            if feat is None:
-                break
-            for f in fields:
-                assert float(feat[f]) > 0
-
-        ds = None
-        os.remove(ofile)
-
-    def _get_fields(self, units):
-        units_str = "_mm" if units else ""
-        return [f'H_{x}T{self.rainlength}{units_str}' for x in self.return_period]
-
-    def test_002_d_rain_shp_post(self):
-        """Test d-rain-shp (post method)."""
-        ofile = self._run_job_request(
-            Path(__file__).parent / 'request-d-rain-shp.xml',
-            '.zip'
-        )
-
-        self._process_d_rain_output(
-            ofile
-        )
-
-    def test_003_d_rain_shp(self):
-        """Test d-rain-shp"""
-        ofile = self._run_job(
-            'd-rain-shp',
-            [("input", self.input_data),
-             ("rainlength", self.rainlength),
-             ("area_size", self.area_size)
-            ] + self._request_multi("return_period"),
-            '.zip'
-        )
-        self._process_d_rain_output(
-            ofile
-        )
-
-    def test_004_d_rain_csv(self):
-        """Test d-rain-csv"""
-        ofile = self._run_job(
-            'd-rain-csv',
-            [("input", self.input_data),
-             ("rainlength", self.rainlength),
-             ("keycolumn", self.keycolumn),
-             ("area_size", self.area_size)
-            ] + self._request_multi("return_period"),
-            '.csv'
-        )
-        self._process_d_rain_output(
-            ofile,
-            units=True
-        )
-
-    def test_005_d_rain_point(self):
-        """Test d-rain-point"""
-        ofile = self._run_job(
-            'd-rain-point',
-            [("obs_x", "15.11784"),
-             ("obs_y", "49.88598"),
-             ("rainlength", self.rainlength)
-            ] + self._request_multi("return_period"),
-            '.txt'
-        )
-        with open(ofile) as fd:
-            assert fd.read() == "30.2,44.2,89.0"
-
     def _process_d_rain6h_timedist(self, ofile):
         fields = []
         for rp in self.return_period:
@@ -169,7 +80,7 @@ class TestWPS:
 
             assert nlines == 15
 
-    def test_006_d_rain6h_timedist_reduction(self):
+    def test_002_d_rain6h_timedist_reduction(self):
         ofile = self._run_job(
             'd-rain6h-timedist',
             [("input", self.input_data),
@@ -179,7 +90,7 @@ class TestWPS:
         )
         self._process_d_rain6h_timedist(ofile)
 
-    def test_007_d_rain6h_timedist_reduction_disabled(self):
+    def test_003_d_rain6h_timedist_reduction_disabled(self):
         ofile = self._run_job(
             'd-rain6h-timedist',
             [("input", self.input_data),
@@ -190,7 +101,7 @@ class TestWPS:
         )
         self._process_d_rain6h_timedist(ofile)
 
-    def test_008_raintotal6h_timedist(self):
+    def test_004_raintotal6h_timedist(self):
         ofile = self._run_job(
             'raintotal6h-timedist',
             [("value", self.value),
@@ -206,7 +117,7 @@ class TestWPS:
                     assert float(row[f"H_typ{st}_mm"]) > 0                
                 time += 5
                 
-    def test_009_soil_texture_hsg(self):
+    def test_005_soil_texture_hsg(self):
         ofile = self._run_job_request(
             Path(__file__).parent / 'request-soil-texture-hsg.xml',
             '.zip'
@@ -220,18 +131,18 @@ class TestWPS:
             assert ds.GetGeoTransform() == geo_transform
             ds = None
 
-    def test_010_soil_texture_hsg20km2(self):
+    def test_006_soil_texture_hsg20km2(self):
         ofile = self._run_job_request(
             Path(__file__).parent / 'request-soil-texture-hsg20km2.xml',
             exception="Process error: Limit 20km2 na vymeru zajmoveho uzemi prekrocen"
         )
 
-    def test_011_smoderp2d_capabilities(self):
+    def test_007_smoderp2d_capabilities(self):
         processes = self._wps('https://rain1.fsv.cvut.cz:4444/services/wps').processes
         assert len(processes) == 2
         assert any(process.identifier.startswith('smoderp') for process in processes)
 
-    def test_012_profile1d(self):
+    def test_008_profile1d(self):
         ofile = self._run_job_request(        
             Path(__file__).parent / 'request-profile1d.xml',
             '.csv',
