@@ -8,7 +8,8 @@ from osgeo import ogr, gdal
 
 class TestWPS:
     # url='https://rain1.fsv.cvut.cz/services/wps'
-    url='http://localhost/services/wps'
+    # url='http://localhost/services/wps'
+    url='http://geo102.fsv.cvut.cz:8084/services/wps'    
     input_data=ComplexDataInput("http://rain.fsv.cvut.cz/geodata/test.gml")
     key="HLGP_ID"
     return_period=["N2","N5","N100"]
@@ -17,7 +18,13 @@ class TestWPS:
     shape=["E", "F"]
     value="25"
     area_size="10000"
-    num_processes = 3
+    num_processes = 4
+    obs_x="-668000.000000"
+    obs_y="-1081500.000000"
+    cn2="60"
+    area="100"
+    ia="0.2"
+
     def _wps(self, url=None):
         return WebProcessingService(
             url if url else self.url
@@ -35,15 +42,16 @@ class TestWPS:
         assert len(processes) == self.num_processes
         assert any(process.identifier.startswith('d-rain6h') for process in processes)
 
-    def _run_job(self, process, inputs, ext):
+    def _run_job(self, process, inputs, ext=None):
         execution = self._wps().execute(process, inputs)
         monitorExecution(execution)
         assert execution.getStatus() == "ProcessSucceeded"
 
-        ofile = self._get_filename() + ext
-        execution.getOutput(ofile)
-
-        return ofile
+        if ext:
+            ofile = self._get_filename() + ext
+            execution.getOutput(ofile)
+            
+            return ofile
 
     def _run_job_request(self, request_file, ext=None, url=None,
                          exception=None):
@@ -139,20 +147,30 @@ class TestWPS:
             exception="Process error: Limit 20km2 na vymeru zajmoveho uzemi prekrocen"
         )
 
-    def test_007_smoderp2d_capabilities(self):
-        processes = self._wps('https://rain1.fsv.cvut.cz:4444/services/wps').processes
-        assert len(processes) == 2
-        assert any(process.identifier.startswith('smoderp') for process in processes)
-
-    def test_008_profile1d(self):
-        ofile = self._run_job_request(        
-            Path(__file__).parent / 'request-profile1d.xml',
-            '.csv',
-            'https://rain1.fsv.cvut.cz:4444/services/wps'
+    def test_007_cn_rain6h(self):
+        ofile = self._run_job(
+            'cn-rain6h',
+            [("obs_x", self.obs_x),
+             ("obs_y", self.obs_y),
+             ("cn2", self.cn2),
+             ("ia", self.ia),
+             ("area", self.area)] + self._request_multi("return_period")
         )
+        
+    # def test_007_smoderp2d_capabilities(self):
+    #     processes = self._wps('https://rain1.fsv.cvut.cz:4444/services/wps').processes
+    #     assert len(processes) == 2
+    #     assert any(process.identifier.startswith('smoderp') for process in processes)
 
-        with open(ofile) as fd:
-            data = DictReader(fd)
-            for row in data:
-                assert float(row["length[m]"]) > 0
-                assert row["soilVegFID"] in ("HXGEO", "PXOP")
+    # def test_008_profile1d(self):
+    #     ofile = self._run_job_request(        
+    #         Path(__file__).parent / 'request-profile1d.xml',
+    #         '.csv',
+    #         'https://rain1.fsv.cvut.cz:4444/services/wps'
+    #     )
+
+    #     with open(ofile) as fd:
+    #         data = DictReader(fd)
+    #         for row in data:
+    #             assert float(row["length[m]"]) > 0
+    #             assert row["soilVegFID"] in ("HXGEO", "PXOP")
