@@ -92,6 +92,13 @@ class SubDayPrecipProcess(Process):
                     min_occurs=0)
                )
 
+          if 'area' in input_params:
+               inputs.append(LiteralInput(
+                    identifier="area",
+                    title="Výměra plochy v ha (0.1-100)",
+                    data_type='float')
+               )
+               
           self._shapes = ['A', 'B', 'C', 'D', 'E', 'F']
           if 'shape' in input_params:
                inputs.append(LiteralInput(
@@ -196,6 +203,11 @@ class SubDayPrecipProcess(Process):
                self.area_red = request.inputs['area_red'][0].data
           else:
                self.area_red = True
+          if 'area' in request.inputs.keys():
+               self.area = float(request.inputs['area'][0].data)
+               if self.area < 0.1 or self.area > 100:
+                    # TBD: use pywps API
+                    raise ProcessError("area: povolený interval hodnot (0.1-100)")
           if 'input' in request.inputs.keys():
                self.map_name = self.import_data(request.inputs['input'][0].file)
           if 'obs_x' in request.inputs.keys():
@@ -235,7 +247,7 @@ class SubDayPrecipProcess(Process):
                if self.identifier == 'd-rain6h-timedist':
                     self._v_rast_stats(self.area_red)
                elif self.identifier == 'cn-rain6h':
-                    self.compute_volume(self.cn2, self.ia)
+                    self.compute_volume(self.cn2, self.ia, self.area)
                     
                LOGGER.info("Computation finished: {} sec".format(time.time() - start))
 
@@ -412,10 +424,10 @@ class SubDayPrecipProcess(Process):
 
      def point_map_from_obs(self, obs_x, obs_y):
           map_name = "input_point_map"
-          vector_input="1|{}|{}".format(obs_x, obs_yy)
+          vector_input="1|{}|{}".format(obs_x, obs_y)
           LOGGER.debug('Input: {}'.format(vector_input))
           Module('v.in.ascii', input='-', output=map_name,
                  cat=1, x=2, y=3, stdin_=vector_input)
           Module('v.db.addtable', map=map_name)
           
-          return input_point_map
+          return map_name

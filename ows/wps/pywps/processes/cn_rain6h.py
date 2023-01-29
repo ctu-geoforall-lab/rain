@@ -17,15 +17,18 @@ class CnRain6h(SubDayPrecipProcess):
             self,
             identifier="cn-rain6h",
             title="TBD",
-            abstract="",
-            input_params=['obs', 'return_period', 'cn', 'ia'],
+            abstract="TBD",
+            input_params=['obs', 'return_period', 'area', 'cn', 'ia'],
             output_params=['output_volume'],
             version=1.0
         )
-        
+
+        self.mapset = 'rain6h'
+
         os.environ['GRASS_SKIP_MAPSET_OWNER_CHECK'] = '1'
         os.environ['HOME'] = '/tmp' # needed by G_home()
 
+    @staticmethod
     def _scs_cn_volume(CN, Lambda, H_s, area):
         # cn is the curve number
         # i is the rainfall (mm)
@@ -43,22 +46,63 @@ class CnRain6h(SubDayPrecipProcess):
 
         return V
 
-    def compute_volume(self, CN2, IA):
+    @staticmethod
+    def _reclass_qapi(qAPI):
+        if qAPI < 0.2:
+            nsa = 1
+        elif qAPI >=0.2 and qAPI < 0.4:
+            nsa = 0.75
+        elif qAPI >= 0.4 and qAPI < 0.6:
+            nsa = 0.5
+        elif qAPI >= 0.6 and qAPI < 0.8:
+            nsa = 0.25
+        else:
+            nsa = 0
+
+        return nsa
+    
+    def _get_value_from_raster(self, rast_name):
+        Module('v.what.rast',
+               map=self.map_name,
+               raster=f"{rast_name}@{self.mapset}",
+               column=rast_name)
+        v_what_rast = Module('v.db.select',
+                             map=self.map_name,
+                             columns=rast_name, flags='c',
+                             stdout_=PIPE)
+        return float(v_what_rast.outputs.stdout.splitlines()[0])
+            
+    def compute_volume(self, CN2, IA, area):
         CN3  = 23 * CN2 / (10 + 0.13 * CN2)
 
-        region_set = False
+        # get raster values
+        raster_value = {}
+        for rp in self.return_period:
+            rp = rp.lstrip('N')
+            rast_name = f"H_N{rp}T360"
+            raster_value[rast_name] = self._get_value_from_raster(rast_name)
+            for shape in self._shapes:
+                rast_name = f"{shape}_{int(rp):03d}"
+                raster_value[rast_name] = self._get_value_from_raster(rast_name) / 100
+                
         for shape in self._shapes:
             rast_name = f"a06_t{shape}z_1"
-            Module('g.region',
-                   raster=rast_name)
-            Module('v.what.rast',
-                   map=self.map_name,
-                   raster=rast_name)
-            v_what_rast = Module('v.db.select',
-                                 map=self.map_name,
-                                 columns=rast_name, flags='c',
-                                 stdout_=PIPE)
-            rast_val = v_what_rast.outputs.stdout
+            raster_value[rast_name] = self._get_value_from_raster(rast_name)
 
-            LOGGER.info(f"{shape}: {rast_val}")
-        
+        LOGGER.info(f"{shape}: {raster_value}")
+
+        volume = []
+        for rp in self.return_period:
+            rp = rp.lstrip('N')
+            rast_name = f"H_N{rp}T360"
+            VCN2 = self._scs_cn_volume(CN2, IA, raster_value[rast_name], area)
+            VCN3 = self._scs_cn_volume(CN3, IA, raster_value[rast_name], area)
+
+            V = 0
+            for shape in self._shapes:
+                nsa = self._reclass_qapi(raster_value[f"a06_t{shape}z_1"])
+                V += nsa * raster_value[f"{shape}_{int(rp):03d}"] * VCN2
+                V += (1 - nsa) * raster_value[f"{shape}_{int(rp):03d}"] * VCN3
+            volume.append(V)
+
+        LOGGER.info(f"{volume}")
