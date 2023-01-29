@@ -221,8 +221,12 @@ class SubDayPrecipProcess(Process):
 
           self._response = response # report_progress() can be called by other methods
 
+          # set computational region
+          Module('g.region', raster="H_N2T360@rain6h")
+
           if self.map_name:
                LOGGER.debug("Computation started")
+               
                start = time.time()
                self.report_progress(1, "Starting computation")
 
@@ -334,7 +338,7 @@ class SubDayPrecipProcess(Process):
           # handle NULL values (areas smaller than raster resolution)
           LOGGER.info("Number of small areas: {} (raster: {} column {})".format(
                len(cats), rast_name, col_name))
-          
+
           if len(cats) > 0:
                Module('v.what.rast', map=self.map_name, raster=rast_name, type='centroid',
                       column='{}_average'.format(col_name), where="{}_average is NULL".format(col_name)

@@ -20,7 +20,7 @@ import grass.script as gscript # TODO: replace by pyGRASS
 
 class SubDayPrecipShapesBase(object):
      def __init__(self):
-          self.mapset = 'rl360_v2'
+          self.mapset = 'rain6h'
           self.sep = ','
           self.rainlength = '360'
 
@@ -163,7 +163,7 @@ class SubDayPrecipShapes(SubDayPrecipShapesBase, SubDayPrecipProcess):
           data_perc = self._compute_timeshapes_perc()
 
           # process features
-          self.report_progress(90, f"Exporting probabilities")
+          self.report_progress(90, "Exporting probabilities")
           for fid, attrib in data['values'].items():
                LOGGER.debug('FID={}: {}'.format(attrib[0], attrib[1:]))
                valid = True if float(attrib[1]) > 0 else False
@@ -180,8 +180,6 @@ class SubDayPrecipShapes(SubDayPrecipShapesBase, SubDayPrecipProcess):
                     fd.write('{sep}{val:.1f}'.format(
                          sep=self.sep, val=val
                     ))
-               # for stype in self.shapetype:
-               #      fd.write('{sep}-1'.format(sep=self.sep))
                fd.write(nl)
 
 if __name__ == "__main__":
