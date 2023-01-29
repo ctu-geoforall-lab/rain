@@ -38,12 +38,11 @@
           <span v-text="tick.label"/>
         </div>
       </div>
-      <span class="unit">Čas [min.]</span>
+      <span v-if="xAxis.unit" class="unit" v-text="xAxis.unit"/>
     </div>
 
     <div class="axis y">
-      <!-- <span class="unit">[mm/5min]</span> -->
-      <span class="unit">[mm]</span>
+      <span v-if="yAxis.unit" class="unit" v-text="yAxis.unit"/>
       <div v-if="yAxisTicks.offset" :style="yAxisTicks.offset"/>
       <div
         v-for="(tick, i) in yAxisTicks.ticks"
@@ -206,6 +205,7 @@ export default {
       .unit {
         height: 0;
         transform: translate(0, -24px);
+        padding-right: 6px;
       }
       .tick {
         display: flex;
@@ -213,7 +213,7 @@ export default {
         span {
           flex-grow: 1;
           transform: translate(0, -50%);
-          padding-right: 10px;
+          padding-right: 6px;
         }
         .tick-line {
           width: 3px;

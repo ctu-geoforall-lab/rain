@@ -63,7 +63,7 @@
         </div>
       </template>
     </plot-chart>
-    <div class="subtitle">Pravděpodobnosti výskytu návrhových průběhů</div>
+    <div class="subtitle">Zastoupení tvarů hyetogramu</div>
     <div class="bar-chart">
       <div
         v-for="(item, i) in barChart"
@@ -71,8 +71,21 @@
         class="item"
         :style="item.style"
       >
-        {{ item.value }}%
+        {{ formats.num1(item.value) }}%
       </div>
+    </div>
+
+    <div class="subtitle">aAPI - vztaženo k zastoupení CN2 a CN3</div>
+    <div class="cn-table m-2">
+      <template v-for="(data, label) in cnData">
+        <span :key="label" v-text="label"/>
+        <span
+          v-for="(item, i) in data"
+          :key="`${label}_${i}`"
+          v-text="item.value"
+          :style="item.style"
+        />
+      </template>
     </div>
 
     <a class="download" @click="download">Data CSV</a>
@@ -93,16 +106,41 @@ import PlotChart, { bandsExtent } from './PlotChart.vue'
 
 import { getFeatureQuery, layerFeaturesQuery } from '@/map/featureinfo'
 
+function cn2 (v) {
+  if (v < 20) {
+    return 1
+  } else if (v < 40) {
+    return 0.75
+  } else if (v < 60) {
+    return 0.5
+  } else if (v < 80) {
+    return 0.25
+  } else {
+    return 0
+  }
+}
+
+function cn3 (v) {
+  if (v < 20) {
+    return 0
+  } else if (v < 40) {
+    return 0.25
+  } else if (v < 60) {
+    return 0.5
+  } else if (v < 80) {
+    return 0.75
+  } else {
+    return 1
+  }
+}
+
 export default {
   name: 'RainChart',
   components: { PlotChart },
   props: {
     layer: Object,
     feature: Object,
-    // rainfallAttribute: {
-    //   type: String,
-    //   default: 'h_n2t360'
-    // }
+    project: Object
   },
   data () {
     return {
@@ -112,50 +150,56 @@ export default {
     }
   },
   computed: {
-    config () {
-      return this.$store.state.project.config
+    formats () {
+      const num1 = new Intl.NumberFormat('cs', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 1
+      })
+      return {
+        num1: v => v && num1.format(v)
+      }
     },
     hn () {
-      // povodi_iv_2_lete_6h
-      return this.layer.name.split('_')[2]
+      // Navrhove_srazky-2_roky
+      return this.layer.name.split('-')[1]?.split('_')[0]
     },
     rainfallAttribute () {
-      return `h_n${this.hn}t360`
+      return `H_N${this.hn}T360`
     },
     properties () {
       return this.feature.getProperties()
     },
     attributes () {
       return {
-        id: this.feature.get('chp'),
-        area: this.feature.get('a_km2').toFixed(2),
-        rainfall: this.feature.get(this.rainfallAttribute)?.toFixed(1)
+        id: this.properties['HLGP_CHAR'],
+        area: this.properties['PLOCHA'].toFixed(2),
+        rainfall: this.properties[this.rainfallAttribute]?.toFixed(1)
       }
     },
     bands () {
       return {
         A: {
-          label: 'Typ A',
+          label: 'Tvar A',
           color: 'rgb(255,0,0)'
         },
         B: {
-          label: 'Typ B',
+          label: 'Tvar B',
           color: 'rgb(255,124,128)'
         },
         C: {
-          label: 'Typ C',
+          label: 'Tvar C',
           color: 'rgb(255,192,0)'
         },
         D: {
-          label: 'Typ D',
+          label: 'Tvar D',
           color: 'rgb(25,255,0)'
         },
         E: {
-          label: 'Typ E',
+          label: 'Tvar E',
           color: 'rgb(146,208,80)'
         },
         F: {
-          label: 'Typ F',
+          label: 'Tvar F',
           color: 'rgb(0,112,192)'
         }
       }
@@ -167,7 +211,7 @@ export default {
       if (this.features) {
         return mapValues(this.features, features => features.map(f => ({
           time: parseInt(f.properties['T_(min)']),
-          value: (f.properties['H5min_(%)'] / 100.0) * this.feature.get(this.rainfallAttribute)
+          value: (f.properties['H5min_(%)'] / 100.0) * this.properties[this.rainfallAttribute]
         })))
       }
       return null
@@ -179,7 +223,8 @@ export default {
 
       return {
         scale,
-        ticks: d3.range(0, 365, 60)
+        ticks: d3.range(0, 365, 60),
+        unit: 'Čas [min.]'
       }
     },
     yAxis () {
@@ -192,7 +237,8 @@ export default {
       // scale.domain([0, 10])
       return {
         scale,
-        ticks: scale.ticks(6)
+        ticks: scale.ticks(6),
+        unit: '[mm]'
       }
     },
     curves () {
@@ -209,18 +255,30 @@ export default {
       }
     },
     barChart () {
-      const prefix = `p_n${this.hn}typ`
+      // const prefix = `p_n${this.hn}tvar`
+      const suffix = `_00${this.hn}`
       return Object.keys(this.bands).map(type => {
-        const attr = prefix + type.toLowerCase()
-        const value = this.feature.get(attr)
+        const attr = type + suffix
+        const value = this.properties[attr]
         return {
           value,
           style: {
-            width: value + '%',
+            width: Math.round(value) + '%',
             '--color': this.bands[type].color
           }
         }
       })
+    },
+    cnData () {
+      const cnData = cn => Object.keys(this.bands).map(type => ({
+        type,
+        value: cn(100 * this.properties[`a06_t${type}z_1`]),
+        style: { '--color': this.bands[type].color }
+      }))
+      return {
+        CN2: cnData(cn2),
+        CN3: cnData(cn3)
+      }
     }
   },
   async created () {
@@ -229,7 +287,7 @@ export default {
   },
   methods: {
     async fetchData () {
-      const bandLayers = mapValues(this.bands, ((v, id) => `typ${id}`))
+      const bandLayers = mapValues(this.bands, ((v, id) => `tvar${id}`))
       const queries = Object.values(bandLayers).map(name => layerFeaturesQuery({ name }))
       const query = getFeatureQuery(queries)
       const params = {
@@ -239,7 +297,7 @@ export default {
         'OUTPUTFORMAT': 'GeoJSON',
         'MAXFEATURES': 1000
       }
-      const { data } = await this.$http.post(this.config.ows_url, query, { params, headers: { 'Content-Type': 'text/xml' } })
+      const { data } = await this.$http.post(this.project.ows_url, query, { params, headers: { 'Content-Type': 'text/xml' } })
       const layersBands = invert(bandLayers)
       return groupBy(data.features, f => layersBands[f.id.split('.')[0]])
     },
@@ -263,23 +321,24 @@ export default {
       const types = Object.keys(this.bands)
       const header = [
         'CAS_min',
-        ...types.map(t => `H_N${this.hn}typ${t}_mm`),
-        ...types.map(t => `P_N${this.hn}typ${t}_%`)
+        ...types.map(t => `H_N${this.hn}tvar${t}_mm`),
+        ...types.map(t => `P_N${this.hn}tvar${t}_%`),
+        ...types.map(t => `CN2 ${t}`),
+        ...types.map(t => `CN3 ${t}`)
       ]
       const csv = [header.join(',')]
-      const firstLine = '0,,,,,,' + types.map(type => this.feature.get(`p_n${this.hn}typ${type.toLowerCase()}`)).join(',')
-      csv.push(firstLine)
-      
+      const firstLine = [
+        0, '', '', '', '', '', '',
+        ...types.map(type => this.properties[`${type}_00${this.hn}`]),
+        ...this.cnData.CN2.map(i => i.value),
+        ...this.cnData.CN3.map(i => i.value)
+      ]
+      csv.push(firstLine.join(','))
       const times = this.bandsData[types[0]].map(i => i.time)
       times.forEach((time, index) => {
         const data = [time, ...types.map(type => this.bandsData[type][index].value.toFixed(3))]
         csv.push(data.join(',') + ',,,,,,')
       })
-      // const data = times.map((time, index) => {
-      //   return [time, ...types.map(type => this.bandsData[type][index].value.toFixed(3))]
-      // })
-      // csv.push(...data.map(row => row.join(',') + ',,,,,,'))
-      // console.log(csv)
       const blob = new Blob([csv.join('\n')], { type: 'text/plain;charset=utf-8' })
       saveAs(blob, `${this.attributes.id}_N${this.hn}.csv`)
     }
@@ -291,6 +350,9 @@ export default {
 .rain-chart {
   display: flex;
   flex-direction: column;
+  @media (min-width: 501px) {
+    width: 460px;
+  }
   .table {
     padding: 8px;
     display: grid;
@@ -402,6 +464,20 @@ export default {
   .download {
     align-self: center;
     padding: 2px 8px;
+    cursor: pointer;
+  }
+}
+.cn-table {
+  display: grid;
+  font-size: 14px;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 1px;
+  background-color: #444;
+  border: 1px solid #444;
+  span {
+    padding: 0 4px;
+    text-align: center;
+    background-color: var(--color, #fff);
   }
 }
 </style>
