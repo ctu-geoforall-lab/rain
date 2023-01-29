@@ -136,10 +136,13 @@ class SubDayPrecipProcess(Process):
                )
                
           if 'output_volume' in output_params:
+               #outputs.append(ComplexOutput(
                outputs.append(LiteralOutput(
                     identifier="output",
                     title="Hodnota objemu",
                     data_type='string')
+                    # supported_formats=[Format('text/csv')],
+                    # as_reference = True)
                )
 
           if 'output_probabilities' in output_params:
@@ -207,7 +210,7 @@ class SubDayPrecipProcess(Process):
                self.area = float(request.inputs['area'][0].data)
                if self.area < 0.1 or self.area > 100:
                     # TBD: use pywps API
-                    raise ProcessError("area: povolený interval hodnot (0.1-100)")
+                    raise ProcessError("area: outside of valid interval (0.1-100)")
           if 'input' in request.inputs.keys():
                self.map_name = self.import_data(request.inputs['input'][0].file)
           if 'obs_x' in request.inputs.keys():
@@ -255,6 +258,8 @@ class SubDayPrecipProcess(Process):
           if self.identifier == 'd-rain6h-timedist':
                response.outputs['output_shapes'].file, response.outputs['output'].file = \
                     self.export()
+          elif self.identifier == 'cn-rain6h':
+               response.outputs['output'].data = self.export()
           else:
                response.outputs['output'].file = self.export()
           self.report_progress(100, "Computation finished")

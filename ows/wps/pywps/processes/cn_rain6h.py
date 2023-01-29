@@ -77,6 +77,8 @@ class CnRain6h(SubDayPrecipProcess):
 
         # get raster values
         raster_value = {}
+        progress_message = "Getting values from raster layers..."
+        self.report_progress(10, progress_message)
         for rp in self.return_period:
             rp = rp.lstrip('N')
             rast_name = f"H_N{rp}T360"
@@ -84,14 +86,17 @@ class CnRain6h(SubDayPrecipProcess):
             for shape in self._shapes:
                 rast_name = f"{shape}_{int(rp):03d}"
                 raster_value[rast_name] = self._get_value_from_raster(rast_name) / 100
-                
+
+        self.report_progress(35, progress_message)
         for shape in self._shapes:
             rast_name = f"a06_t{shape}z_1"
             raster_value[rast_name] = self._get_value_from_raster(rast_name)
+        self.report_progress(70, progress_message)
 
         LOGGER.info(f"{shape}: {raster_value}")
 
-        volume = []
+        self._result = []
+        self.report_progress(70, "Computing volume...")
         for rp in self.return_period:
             rp = rp.lstrip('N')
             rast_name = f"H_N{rp}T360"
@@ -103,6 +108,20 @@ class CnRain6h(SubDayPrecipProcess):
                 nsa = self._reclass_qapi(raster_value[f"a06_t{shape}z_1"])
                 V += nsa * raster_value[f"{shape}_{int(rp):03d}"] * VCN2
                 V += (1 - nsa) * raster_value[f"{shape}_{int(rp):03d}"] * VCN3
-            volume.append(V)
+            self._result.append(V)
 
-        LOGGER.info(f"{volume}")
+    def export(self):
+        # export csv
+        # sep = ','
+        # self.output = '{}/{}.csv'.format(self.output_dir, self.identifier)
+        # with open(self.output, 'w') as fp:
+        #     for rp in self.return_period:
+        #         fp.write(f'V_{rp}_m3{sep}')
+        #     fp.write('\r\n')
+        #     for v in self._result:
+        #         fp.write(f'{v:.3f}{sep}')
+        #     fp.write('\r\n')
+
+        LOGGER.info(f"Result {self._result}")
+        self.output = ','.join(f'{v:.2f}' for v in self._result)
+        return self.output
