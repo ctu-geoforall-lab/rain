@@ -11,13 +11,13 @@ from grass.pygrass.modules import Module
 
 from . import SubDayPrecipProcess, LOGGER
 
-class CnRain6h(SubDayPrecipProcess):
+class Rain6hCnRunoff(SubDayPrecipProcess):
     def __init__(self):
         SubDayPrecipProcess.__init__(
             self,
-            identifier="cn-rain6h",
-            title="TBD",
-            abstract="TBD",
+            identifier="rain6h-cn-runoff",
+            title="Nástroj vyčíslí objem přímého odtoku vážený podle qAPI a zastoupení tvarů pro lokalitu zadanou uživatelem v podobě bodu.",
+            abstract="",
             input_params=['obs', 'return_period', 'area', 'cn2', 'lambda'],
             output_params=['output_volume'],
             version=1.0

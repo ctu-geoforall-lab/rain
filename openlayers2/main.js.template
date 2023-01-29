@@ -54,7 +54,7 @@ function callWPS(){
 
     
     // Creating Process
-    var processName = "cn-rain6h"
+    var processName = "rain6h-cn-runoff"
     rainProcess = new OpenLayers.WPS.Process({identifier: processName,
                                                   inputs: [obsXInput, obsYInput, raster, area, cn2, ia],
                                                   async: false,

@@ -149,7 +149,7 @@ class TestWPS:
 
     def test_007_cn_rain6h(self):
         ofile = self._run_job(
-            'cn-rain6h',
+            'rain6h-cn-runoff',
             [("obs_x", self.obs_x),
              ("obs_y", self.obs_y),
              ("cn2", self.cn2),

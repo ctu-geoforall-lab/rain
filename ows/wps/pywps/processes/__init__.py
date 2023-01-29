@@ -256,7 +256,7 @@ class SubDayPrecipProcess(Process):
                
                if self.identifier == 'd-rain6h-timedist':
                     self._v_rast_stats(self.area_red)
-               elif self.identifier == 'cn-rain6h':
+               elif self.identifier == 'rain6h-cn-runoff':
                     self.compute_volume(self.cn2, self.lambda_, self.area)
                     
                LOGGER.info("Computation finished: {} sec".format(time.time() - start))
@@ -265,7 +265,7 @@ class SubDayPrecipProcess(Process):
           if self.identifier == 'd-rain6h-timedist':
                response.outputs['output_shapes'].file, response.outputs['output'].file = \
                     self.export()
-          elif self.identifier == 'cn-rain6h':
+          elif self.identifier == 'rain6h-cn-runoff':
                response.outputs['output'].data = self.export()
           else:
                response.outputs['output'].file = self.export()

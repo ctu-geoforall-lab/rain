@@ -16,8 +16,8 @@ if [ -d /opt/mapserv/wfs ] ; then
              /opt/mapserv/wfs/subdayprecip.map
 fi
 
-# cn-rain6h
-WEBAPP_DIR=/var/www/html/cn-rain6h
+# rain6h-cn-runoff
+WEBAPP_DIR=/var/www/html/rain6h-cn-runoff
 if [ -d $WEBAPP_DIR ] ; then
     envsubst '$NGINX_HTTP $NGINX_HOST $NGINX_PORT' \
              < $WEBAPP_DIR/main.js.template > \

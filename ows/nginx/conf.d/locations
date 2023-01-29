@@ -1,4 +1,4 @@
-location /cn-rain6h {
+location /rain6h-cn-runoff {
        autoindex on;
 }
         
