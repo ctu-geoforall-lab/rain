@@ -37,19 +37,26 @@ function callWPS(){
         identifier : "return_period",
         value: document.getElementById('raster').value
     });
-    var rainLength = new OpenLayers.WPS.LiteralPut({
-        identifier : "rainlength",
-        value: document.getElementById('rainlength').value
+    var area = new OpenLayers.WPS.LiteralPut({
+        identifier : "area",
+        value: document.getElementById('area').value
     });
-
+    var cn2 = new OpenLayers.WPS.LiteralPut({
+        identifier : "cn2",
+        value: document.getElementById('cn2').value
+    });
+    var ia = new OpenLayers.WPS.LiteralPut({
+        identifier : "Ia",
+        value: document.getElementById('ia').value
+    });
     // Setting outputs
     var outputValue = new OpenLayers.WPS.LiteralPut({identifier:"output"});
 
     
     // Creating Process
-    var processName = "d-rain-point"
+    var processName = "cn-rain6h"
     rainProcess = new OpenLayers.WPS.Process({identifier: processName,
-                                                  inputs: [obsXInput, obsYInput, raster, rainLength],
+                                                  inputs: [obsXInput, obsYInput, raster, area, cn2, ia],
                                                   async: false,
                                                   outputs: [outputValue]});
 
@@ -87,7 +94,9 @@ function triggerGritter(text){
 function showResult(text){
     var div = document.getElementById('resultNote');
     var raster = document.getElementById('raster').value;
-    var rainLength = document.getElementById('rainlength').value;
+    var area = document.getElementById('area').value;
+    var cn2 = document.getElementById('cn2').value;
+    var ia = document.getElementById('ia').value;        
     var layers = map.getLayersBy("visibility", true);
     var lat = document.getElementById('lat').value;
     var lon = document.getElementById('lon').value;
@@ -100,9 +109,11 @@ function showResult(text){
 	// '<table><tr><td>GPS:</td><td>' + obsPoint.x.toFixed(5) + ', ' + obsPoint.y.toFixed(5) +
 	div.innerHTML += '<table><tr><td>GPS:</td><td>' + parseFloat(lat).toFixed(5) + ', ' + parseFloat(lon).toFixed(5) +
 	    '</td></tr><tr><td>Doba opakování:</td><td>' + String(raster) +
-	    '</td></tr><tr><td>Délka návrhové srážky:</td><td>' + parseFloat(rainLength).toFixed(0) + ' min' +
-	    '</td></tr><tr><td>Hodnota návrhové srážky:</td><td><font size=+1 color="red">' + parseFloat(text).toFixed(1) +
-	    '</font> mm</td></tr></table>';
+	    '</td></tr><tr><td>Plocha:</td><td>' + parseFloat(area).toFixed(1) + ' ha' +
+	    '</td></tr><tr><td>CN2:</td><td>' + parseFloat(cn2).toFixed(1) +
+	    '</td></tr><tr><td>Koeficient počáteční ztráty:</td><td>' + parseFloat(ia).toFixed(1) +             
+	    '</td></tr><tr><td>Objem přímého odtoku vážený podle qAPI a zastoupení tvarů:</td><td><font size=+1 color="red">' + parseFloat(text).toFixed(2) +
+	    '</font> m3</td></tr></table>';
     }
 };
 

@@ -1,3 +1,7 @@
+location /cn-rain6h {
+       autoindex on;
+}
+        
 # WPS
 location /wps/output {
        autoindex on;

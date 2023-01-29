@@ -18,7 +18,7 @@ class CnRain6h(SubDayPrecipProcess):
             identifier="cn-rain6h",
             title="TBD",
             abstract="TBD",
-            input_params=['obs', 'return_period', 'area', 'cn', 'ia'],
+            input_params=['obs', 'return_period', 'area', 'cn2', 'lambda'],
             output_params=['output_volume'],
             version=1.0
         )

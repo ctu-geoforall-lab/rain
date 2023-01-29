@@ -95,7 +95,7 @@ class SubDayPrecipProcess(Process):
           if 'area' in input_params:
                inputs.append(LiteralInput(
                     identifier="area",
-                    title="Výměra plochy v ha (0.1-100)",
+                    title="Plocha v hektarech (0.1-100)",
                     data_type='float')
                )
                
@@ -120,17 +120,17 @@ class SubDayPrecipProcess(Process):
                     min_occurs=0)
                )
 
-          if 'cn' in input_params:
+          if 'cn2' in input_params:
                inputs.append(LiteralInput(
                     identifier="cn2",
-                    title="Hodnota CN",
+                    title="Hodnota CN2 (20-99)",
                     data_type='float')
                )
                
-          if 'ia' in input_params:
+          if 'lambda' in input_params:
                inputs.append(LiteralInput(
-                    identifier="Ia",
-                    title="Hodnota Ia",
+                    identifier="lambda",
+                    title="Koeficient počáteční ztráty (0.1-0.3)",
                     data_type='float',
                     default="0.2")
                )
@@ -221,11 +221,18 @@ class SubDayPrecipProcess(Process):
                self.check_keycolumn(self.keycolumn)
 
           if 'cn2' in request.inputs.keys():
-               self.cn2 = request.inputs['cn2'][0].data
-          if 'ia' in request.inputs.keys():
-               self.ia = request.inputs['ia'][0].data
+               self.cn2 = float(request.inputs['cn2'][0].data)
+               if self.cn2 < 20 or self.cn2 > 99:
+                    # TBD: use pywps API
+                    raise ProcessError("cn2: outside of valid interval (20-99)")
+               
+          if 'lambda' in request.inputs.keys():
+               self.lambda_ = float(request.inputs['lambda'][0].data)
+               if self.lambda_ < 0.2 or self.lambda_ > 0.3:
+                    # TBD: use pywps API
+                    raise ProcessError("lambda: outside of valid interval (0.1-0.3)")
           else:
-               self.ia = 0.2
+               self.lambda_ = 0.2
 
           self.output_dir = os.path.join('/tmp', '{}_{}'.format(
                self.identifier, os.getpid())
@@ -250,7 +257,7 @@ class SubDayPrecipProcess(Process):
                if self.identifier == 'd-rain6h-timedist':
                     self._v_rast_stats(self.area_red)
                elif self.identifier == 'cn-rain6h':
-                    self.compute_volume(self.cn2, self.ia, self.area)
+                    self.compute_volume(self.cn2, self.lambda_, self.area)
                     
                LOGGER.info("Computation finished: {} sec".format(time.time() - start))
 
@@ -428,8 +435,12 @@ class SubDayPrecipProcess(Process):
           pass
 
      def point_map_from_obs(self, obs_x, obs_y):
+          p = Module('m.proj',
+                     coordinates=[obs_x, obs_y],
+                     proj_in='+init=epsg:4326', proj_out='+init=epsg:5514', stdout_=PIPE)
+          x, y, z = p.outputs.stdout.split('|')
           map_name = "input_point_map"
-          vector_input="1|{}|{}".format(obs_x, obs_y)
+          vector_input="1|{}|{}".format(x, y)
           LOGGER.debug('Input: {}'.format(vector_input))
           Module('v.in.ascii', input='-', output=map_name,
                  cat=1, x=2, y=3, stdin_=vector_input)

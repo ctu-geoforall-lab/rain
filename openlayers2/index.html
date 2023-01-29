@@ -25,7 +25,7 @@
   <div id="map1"></div>
   
   <div class="note" id="contactNote">
-    <h2>Testovací webová aplikace Rain</h2>
+    <h2>Testovací webová aplikace CN-Rain6h</h2>
     <p>Nástroj vyčíslí návrhovou srážku pro lokalitu zadanou uživatelem v podobě bodu.</p>
     <table>
       <tr>
@@ -52,8 +52,16 @@
 	<td></td>
       </tr>
       <tr>
-	<td>Délka srážky (min):</td>
-	<td><input type="text" id="rainlength" type="number" value="60" min="1" max="1439" size="5>" /></td>
+	<td>Plocha (1-100):</td>
+	<td><input type="text" id="area" type="number" value="100" min="1" max="100" size="5>" /> ha</td>
+      </tr>
+      <tr>
+	<td>CN2 (20-99):</td>        
+        <td><input type="text" id="cn2" type="number" value="60" min="20" max="99" size="5>" /></td>
+      </tr>
+      <tr>
+	<td>Koeficient počáteční ztráty (0.1-0.3):</td>        
+        <td><input type="text" id="ia" type="number" value="0.2" min="0.1" max="0.3" size="5>" /></td>
 	<td></td>
 	<td style="text-align: right"><button style="color: red; font-weight: bold" onclick="callWPS()">Spustit</button></td>
       </tr>
