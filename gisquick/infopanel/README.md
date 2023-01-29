@@ -1,17 +1,17 @@
 # Steps
 
-Clone https://github.com/gislab-npo/gisquick
+Clone https://github.com/gisquick/gisquick
 
 ```
-git clone https://github.com/gislab-npo/gisquick.git
-cd clients/gisquick-web
+git clone https://github.com/gisquick/gisquick.git
+cd gisquick/clients/gisquick-web
 ```
 
 Copy source files of custom InfoPanel into `src/extensions/` directory
 
 Install dependencies
 ```
-npm i @vue/cli-service
+npm install
 npm install d3
 ```
 
