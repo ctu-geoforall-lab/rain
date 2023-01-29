@@ -154,9 +154,11 @@ class TestWPS:
              ("obs_y", self.obs_y),
              ("cn2", self.cn2),
              ("ia", self.ia),
-             ("area", self.area)] + self._request_multi("return_period")
+             ("area", self.area)] + self._request_multi("return_period"),
+            '.csv'
         )
-        
+        with open(ofile) as fd:
+            print(fd.read())
     # def test_007_smoderp2d_capabilities(self):
     #     processes = self._wps('https://rain1.fsv.cvut.cz:4444/services/wps').processes
     #     assert len(processes) == 2
