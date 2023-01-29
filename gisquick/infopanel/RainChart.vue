@@ -75,7 +75,7 @@
       </div>
     </div>
 
-    <div class="subtitle">aAPI - vztaženo k zastoupení CN2 a CN3</div>
+    <div class="subtitle">qAPI - vztaženo k zastoupení CN2 a CN3</div>
     <div class="cn-table m-2">
       <template v-for="(data, label) in cnData">
         <span :key="label" v-text="label"/>
