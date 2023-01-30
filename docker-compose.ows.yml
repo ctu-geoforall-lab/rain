@@ -8,7 +8,7 @@ services:
       - ./ows/nginx/log:/var/log/nginx/
       - ./ows/wps/pywps:/opt/pywps/
       - ./ows/wps/log:/var/log/pywps/
-      - ./ows/wps/grassdata:/data/grassdata
+      -  /data/geodata/rain/grass_location:/data/grass_location
       - ./ows/wms:/opt/mapserv/wms
       - ./ows/wms/data:/opt/mapserv/wms_data
       - ./ows/wms/log/:/var/log/mapserv
