@@ -136,13 +136,11 @@ class SubDayPrecipProcess(Process):
                )
                
           if 'output_volume' in output_params:
-               #outputs.append(ComplexOutput(
-               outputs.append(LiteralOutput(
-                    identifier="output",
-                    title="Hodnota objemu",
-                    data_type='string')
-                    # supported_formats=[Format('text/csv')],
-                    # as_reference = True)
+               outputs.append(ComplexOutput(
+                    identifier="output", 
+                    title="Vyčíslené hodnoty objemu ve formátu JSON",
+                    supported_formats=[Format('application/json')],
+                    as_reference=True)
                )
 
           if 'output_probabilities' in output_params:
@@ -265,8 +263,6 @@ class SubDayPrecipProcess(Process):
           if self.identifier == 'd-rain6h-timedist':
                response.outputs['output_shapes'].file, response.outputs['output'].file = \
                     self.export()
-          elif self.identifier == 'rain6h-cn-runoff':
-               response.outputs['output'].data = self.export()
           else:
                response.outputs['output'].file = self.export()
           self.report_progress(100, "Computation finished")
@@ -439,6 +435,10 @@ class SubDayPrecipProcess(Process):
                      coordinates=[obs_x, obs_y],
                      proj_in='+init=epsg:4326', proj_out='+init=epsg:5514', stdout_=PIPE)
           x, y, z = p.outputs.stdout.split('|')
+          if x == '*' or y == '*':
+               raise ProcessError(
+                    f"Unable to transform input coordinates ({obs_x}, {obs_y}) into EPSG:5514. "
+                    "Input coordinates are expected in WGS-84.")
           map_name = "input_point_map"
           vector_input="1|{}|{}".format(x, y)
           LOGGER.debug('Input: {}'.format(vector_input))

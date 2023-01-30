@@ -1,6 +1,7 @@
 import pytest
 import os
 import tempfile
+import json
 from csv import DictReader
 from pathlib import Path
 from owslib.wps import WebProcessingService, monitorExecution, ComplexDataInput
@@ -8,8 +9,8 @@ from osgeo import ogr, gdal
 
 class TestWPS:
     # url='https://rain1.fsv.cvut.cz/services/wps'
-    # url='http://localhost/services/wps'
-    url='http://geo102.fsv.cvut.cz:8084/services/wps'    
+    url='http://localhost/services/wps'
+    # url='http://geo102.fsv.cvut.cz:8084/services/wps'    
     input_data=ComplexDataInput("http://rain.fsv.cvut.cz/geodata/test.gml")
     key="HLGP_ID"
     return_period=["N2","N5","N100"]
@@ -19,8 +20,8 @@ class TestWPS:
     value="25"
     area_size="10000"
     num_processes = 4
-    obs_x="-668000.000000"
-    obs_y="-1081500.000000"
+    obs_x="15.474897"
+    obs_y="49.803578"
     cn2="60"
     area="100"
     ia="0.2"
@@ -155,10 +156,21 @@ class TestWPS:
              ("cn2", self.cn2),
              ("ia", self.ia),
              ("area", self.area)] + self._request_multi("return_period"),
-            '.csv'
+            '.json'
         )
-        with open(ofile) as fd:
-            print(fd.read())
+
+        with open(ofile, 'r') as fp:
+            data = json.load(fp)
+            i = 0
+            for rp in self.return_period:
+                record = data[i]
+                assert record[f"H_{rp}_T360_mm"] >= 0
+                assert record[f"CN3_{rp}"] >= 0
+                assert record[f"VCN2_{rp}_m3"] >= 0
+                assert record[f"VCN3_{rp}_m3"] >= 0
+                assert record[f"V_{rp}_m3"] >= 0
+                i += 1
+
     # def test_007_smoderp2d_capabilities(self):
     #     processes = self._wps('https://rain1.fsv.cvut.cz:4444/services/wps').processes
     #     assert len(processes) == 2

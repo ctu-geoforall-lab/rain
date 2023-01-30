@@ -1,12 +1,7 @@
 import os
-import shutil
+import json
 from subprocess import PIPE
 
-from pywps import Process, ComplexInput, LiteralInput, ComplexOutput, Format, LOGGER
-from pywps.app.exceptions import ProcessError
-from pywps.validator.mode import MODE
-
-from grass.exceptions import CalledModuleError
 from grass.pygrass.modules import Module
 
 from . import SubDayPrecipProcess, LOGGER
@@ -100,28 +95,29 @@ class Rain6hCnRunoff(SubDayPrecipProcess):
         for rp in self.return_period:
             rp = rp.lstrip('N')
             rast_name = f"H_N{rp}T360"
-            VCN2 = self._scs_cn_volume(CN2, IA, raster_value[rast_name], area)
-            VCN3 = self._scs_cn_volume(CN3, IA, raster_value[rast_name], area)
+            H_N = raster_value[rast_name]
+            VCN2 = self._scs_cn_volume(CN2, IA, H_N, area)
+            VCN3 = self._scs_cn_volume(CN3, IA, H_N, area)
 
             V = 0
             for shape in self._shapes:
                 nsa = self._reclass_qapi(raster_value[f"a06_t{shape}z_1"])
                 V += nsa * raster_value[f"{shape}_{int(rp):03d}"] * VCN2
                 V += (1 - nsa) * raster_value[f"{shape}_{int(rp):03d}"] * VCN3
-            self._result.append(V)
+
+            self._result.append({
+                f"H_N{rp}_T360_mm": float(f"{H_N:.3f}"),
+                f"CN3_N{rp}": int(CN3),
+                f"VCN2_N{rp}_m3": float(f"{VCN2:.2f}"),
+                f"VCN3_N{rp}_m3": float(f"{VCN3:.2f}"),
+                f"V_N{rp}_m3": float(f"{V:.2f}")
+            })
 
     def export(self):
-        # export csv
-        # sep = ','
-        # self.output = '{}/{}.csv'.format(self.output_dir, self.identifier)
-        # with open(self.output, 'w') as fp:
-        #     for rp in self.return_period:
-        #         fp.write(f'V_{rp}_m3{sep}')
-        #     fp.write('\r\n')
-        #     for v in self._result:
-        #         fp.write(f'{v:.3f}{sep}')
-        #     fp.write('\r\n')
+        # export json
+        self.output = '{}/{}.json'.format(self.output_dir, self.identifier)
+        with open(self.output, 'w') as fp:
+            json.dump(self._result, fp)
 
         LOGGER.info(f"Result {self._result}")
-        self.output = ','.join(f'{v:.2f}' for v in self._result)
         return self.output
