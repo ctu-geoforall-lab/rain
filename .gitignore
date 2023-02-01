@@ -12,7 +12,7 @@ ows/wms/log
 ows/wms/data
 ows/nginx/log
 ows/db/data
-openlayers2/main.js
+rain6h-cn-runoff/main.js
 .env
 notifier.env
 ows_tests/log/

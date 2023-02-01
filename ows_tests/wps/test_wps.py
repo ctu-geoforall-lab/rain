@@ -1,6 +1,7 @@
 import pytest
 import os
 import tempfile
+import json
 from csv import DictReader
 from pathlib import Path
 from owslib.wps import WebProcessingService, monitorExecution, ComplexDataInput
@@ -8,7 +9,8 @@ from osgeo import ogr, gdal
 
 class TestWPS:
     # url='https://rain1.fsv.cvut.cz/services/wps'
-    url='http://localhost/services/wps'
+    # url='http://localhost/services/wps'
+    url='http://geo102.fsv.cvut.cz:8084/services/wps'    
     input_data=ComplexDataInput("http://rain.fsv.cvut.cz/geodata/test.gml")
     key="HLGP_ID"
     return_period=["N2","N5","N100"]
@@ -17,7 +19,13 @@ class TestWPS:
     shape=["E", "F"]
     value="25"
     area_size="10000"
-    num_processes = 3
+    num_processes = 4
+    obs_x="13.9705854384"
+    obs_y="49.8800531434"
+    cn2="81"
+    area="5.7"
+    lambda_="0.2"
+
     def _wps(self, url=None):
         return WebProcessingService(
             url if url else self.url
@@ -35,15 +43,22 @@ class TestWPS:
         assert len(processes) == self.num_processes
         assert any(process.identifier.startswith('d-rain6h') for process in processes)
 
-    def _run_job(self, process, inputs, ext):
+    def _run_job(self, process, inputs, ext=None, exception=None):
         execution = self._wps().execute(process, inputs)
         monitorExecution(execution)
-        assert execution.getStatus() == "ProcessSucceeded"
+        if exception is None:
+            assert execution.getStatus() == "ProcessSucceeded"
+            if ext:
+                ofile = self._get_filename() + ext
+                execution.getOutput(ofile)
+            
+                return ofile
+        else:
+            assert len(execution.errors) > 0
+            assert execution.getStatus() == "Exception"
+            assert str(execution.errors[0].text).startswith(exception)
 
-        ofile = self._get_filename() + ext
-        execution.getOutput(ofile)
-
-        return ofile
+        return None
 
     def _run_job_request(self, request_file, ext=None, url=None,
                          exception=None):
@@ -139,12 +154,46 @@ class TestWPS:
             exception="Process error: Limit 20km2 na vymeru zajmoveho uzemi prekrocen"
         )
 
-    def test_007_smoderp2d_capabilities(self):
+    def test_007_rain6h_cn_runoff(self):
+        ofile = self._run_job(
+            'rain6h-cn-runoff',
+            [("obs_x", self.obs_x),
+             ("obs_y", self.obs_y),
+             ("cn2", self.cn2),
+             ("lambda", self.lambda_),
+             ("area", self.area)] + self._request_multi("return_period"),
+            '.json'
+        )
+
+        with open(ofile, 'r') as fp:
+            data = json.load(fp)
+            i = 0
+            for rp in self.return_period:
+                record = data[i]
+                assert record[f"H_{rp}_T360_mm"] >= 0
+                assert record[f"CN3_{rp}"] >= 0
+                assert record[f"VCN2_{rp}_m3"] >= 0
+                assert record[f"VCN3_{rp}_m3"] >= 0
+                assert record[f"V_{rp}_m3"] >= 0
+                i += 1
+
+    def test_008_rain6h_cn_runoff101ha(self):
+        self._run_job(
+            'rain6h-cn-runoff',
+            [("obs_x", self.obs_x),
+             ("obs_y", self.obs_y),
+             ("cn2", self.cn2),
+             ("lambda", self.lambda_),
+             ("area", "101")] + self._request_multi("return_period"),
+            exception="Process error: area: outside of valid interval 0.1-100"
+        )
+                
+    def test_009_smoderp2d_capabilities(self):
         processes = self._wps('https://rain1.fsv.cvut.cz:4444/services/wps').processes
         assert len(processes) == 2
         assert any(process.identifier.startswith('smoderp') for process in processes)
 
-    def test_008_profile1d(self):
+    def test_010_profile1d(self):
         ofile = self._run_job_request(        
             Path(__file__).parent / 'request-profile1d.xml',
             '.csv',

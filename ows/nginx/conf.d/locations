@@ -1,3 +1,7 @@
+location /rain6h-cn-runoff {
+       autoindex on;
+}
+        
 # WPS
 location /wps/output {
        autoindex on;

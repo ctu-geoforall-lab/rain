@@ -16,11 +16,12 @@ if [ -d /opt/mapserv/wfs ] ; then
              /opt/mapserv/wfs/subdayprecip.map
 fi
 
-# d-rain-point
-if [ -d /var/www/html/d-rain-point ] ; then
+# rain6h-cn-runoff
+WEBAPP_DIR=/var/www/html/rain6h-cn-runoff
+if [ -d $WEBAPP_DIR ] ; then
     envsubst '$NGINX_HTTP $NGINX_HOST $NGINX_PORT' \
-             < /var/www/html/d-rain-point/main.js.template > \
-             /var/www/html/d-rain-point/main.js
+             < $WEBAPP_DIR/main.js.template > \
+             $WEBAPP_DIR/main.js
 fi
 
 # nginx

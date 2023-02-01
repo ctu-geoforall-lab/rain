@@ -38,8 +38,8 @@ class SubDayPrecipProcess(Process):
           if 'input' in input_params:
                inputs.append(ComplexInput(
                     identifier="input",
-                    title="Vstupni bodova nebo polygonova vektorova data",
-                    supported_formats=[Format('text/xml'), # requires QGIS WPS client
+                    title="Vstupní (bodová či polygonová) vektorová data (mohou být zkoprimována zip/gzip, velikost souboru je omezen na 200MB)",
+                    supported_formats=[Format('text/xml'), # required by QGIS WPS client
                                        Format('GML'),
                                        Format('application/zip; charset=binary')])
                )
@@ -47,26 +47,26 @@ class SubDayPrecipProcess(Process):
           if 'obs' in input_params:
                inputs.append(LiteralInput(
                     identifier="obs_x",
-                    title="Zemepisna delka zajmoveho bodu",
+                    title="Zeměpisná délka zájmového bodu",
                     data_type='float')
                )
                inputs.append(LiteralInput(
                     identifier="obs_y",
-                    title="Zemepisna sirka zajmoveho bodu",
+                    title="Zeměpisná šířka zájmového bodu",
                     data_type='float')
                )
 
           if 'value' in input_params:
                inputs.append(LiteralInput(
                     identifier="value",
-                    title="Hodnota navrhove srazky v mm",
+                    title="Hodnota návrhového úhrnu 6hodinové srážky v mm",
                     data_type='float')
                )
 
           if 'keycolumn' in input_params:
                inputs.append(LiteralInput(
                     identifier="keycolumn",
-                    title="Klicovy atribut vstupnich dat",
+                    title="Název vybraného atributu vstupních dat použitého jako klíčový sloupec. Tento identifikátor lze posléze použít pro připojení textového výstupu k atributovým datům vstupních dat",
                     data_type='string')
                )
           
@@ -75,21 +75,14 @@ class SubDayPrecipProcess(Process):
 
                inputs.append(LiteralInput(
                     identifier="return_period",
-                    title="Doby opakovani",
+                    title="Požadované doby opakování",
                     data_type='string',
                     allowed_values=return_periods,
                     max_occurs=len(return_periods),
                     default=','.join(return_periods),
-                    mode=MODE.NONE
-               ))
-          
-          if 'rainlength' in input_params:
-               inputs.append(LiteralInput(
-                    identifier="rainlength",
-                    title="Delka srazky v minutach",
-                    data_type='integer')
+                    mode=MODE.NONE)
                )
-
+          
           if 'area_size' in input_params:
                inputs.append(LiteralInput(
                     identifier="area_size",
@@ -99,54 +92,61 @@ class SubDayPrecipProcess(Process):
                     min_occurs=0)
                )
 
+          if 'area' in input_params:
+               inputs.append(LiteralInput(
+                    identifier="area",
+                    title="Plocha v hektarech (0.1-100)",
+                    data_type='float')
+               )
+               
+          self._shapes = ['A', 'B', 'C', 'D', 'E', 'F']
           if 'shape' in input_params:
-               types = ['A', 'B', 'C', 'D', 'E', 'F']
                inputs.append(LiteralInput(
                     identifier="shape",
-                    title="Tvar rozlozeni srazky",
+                    title="Požadované tvary průběhu intenzit 6hodinové návrhové srážky",
                     data_type='string',
-                    allowed_values=types,
-                    max_occurs=len(types),
-                    default=','.join(types),
-                    mode=MODE.NONE
-               ))
+                    allowed_values=self._shapes,
+                    max_occurs=len(self._shapes),
+                    default=','.join(self._shapes),
+                    mode=MODE.NONE)
+               )
 
           if 'area_red' in input_params:
                inputs.append(LiteralInput(
                     identifier="area_red",
-                    title="Provest redukci uhrnu pro povodi nad 20 km2",
+                    title="Logický přepínač pro kontrolu plochy vstupních prvků a provádění redukce úhrnů",
                     data_type='boolean',
                     default='true',
                     min_occurs=0)
                )
 
-          if 'output_shp' in output_params:
+          if 'cn2' in input_params:
+               inputs.append(LiteralInput(
+                    identifier="cn2",
+                    title="Hodnota CN2 (20-99)",
+                    data_type='float')
+               )
+               
+          if 'lambda' in input_params:
+               inputs.append(LiteralInput(
+                    identifier="lambda",
+                    title="Koeficient počáteční ztráty (0.1-0.3)",
+                    data_type='float',
+                    default="0.2")
+               )
+               
+          if 'output_volume' in output_params:
                outputs.append(ComplexOutput(
-                    identifier="output",
-                    title="Vysledek ve formatu Esri Shapefile",
-                    supported_formats=[Format('application/x-zipped-shp')],
+                    identifier="output", 
+                    title="Vyčíslené hodnoty objemu ve formátu JSON",
+                    supported_formats=[Format('application/json')],
                     as_reference=True)
-               )
-
-          if 'output_csv' in output_params:
-               outputs.append(ComplexOutput(
-                    identifier="output",
-                    title="Vysledek ve formatu CSV",
-                    supported_formats=[Format('text/csv')],
-                    as_reference = True)
-               )
-
-          if 'output_value' in output_params:
-               outputs.append(LiteralOutput(
-                    identifier="output",
-                    title="Vycislena hodnota navrhove srazky v mm",
-                    data_type='string')
                )
 
           if 'output_probabilities' in output_params:
                outputs.append(ComplexOutput(
                     identifier="output",
-                    title="Vysledne hodnoty pravdepodobnosti tvaru navrhovych srazek ve formatu CSV",
+                    title="Vyčíslené hodnoty pravděpodobnosti tvaru pětiminutových intenzit návrhových srážek pro vstupní vektorové prvky ve formátu CSV",
                     supported_formats=[Format('text/csv')],
                     as_reference = True)
                )
@@ -154,7 +154,7 @@ class SubDayPrecipProcess(Process):
           if 'output_shapes' in output_params:
                outputs.append(ComplexOutput(
                     identifier="output_shapes" if identifier == "d-rain6h-timedist" else "output",
-                    title="Vysledne hodnoty prubehu navrhovych srazek ve formatu CSV",
+                    title="Vyčíslené průběhy pětiminutových intenzit návrhových srážek pro vstupní vektorové prvky ve formátu CSV",
                     supported_formats=[Format('text/csv')],
                     as_reference = True)
                )
@@ -171,6 +171,7 @@ class SubDayPrecipProcess(Process):
                store_supported=True,
                status_supported=True)
 
+          self.map_name = None
           self.keycolumn = None
           self.return_period = None
           self.rainlength = None
@@ -205,11 +206,33 @@ class SubDayPrecipProcess(Process):
                self.area_red = request.inputs['area_red'][0].data
           else:
                self.area_red = True
+          if 'area' in request.inputs.keys():
+               self.area = float(request.inputs['area'][0].data)
+               if self.area < 0.1 or self.area > 100:
+                    # TBD: use pywps API
+                    raise ProcessError("area: outside of valid interval (0.1-100)")
           if 'input' in request.inputs.keys():
                self.map_name = self.import_data(request.inputs['input'][0].file)
-          
+          if 'obs_x' in request.inputs.keys():
+               self.map_name = self.point_map_from_obs(
+                    request.inputs['obs_x'][0].data,
+                    request.inputs['obs_y'][0].data)
           if 'keycolumn' in request.inputs.keys():
                self.check_keycolumn(self.keycolumn)
+
+          if 'cn2' in request.inputs.keys():
+               self.cn2 = float(request.inputs['cn2'][0].data)
+               if self.cn2 < 20 or self.cn2 > 99:
+                    # TBD: use pywps API
+                    raise ProcessError("cn2: outside of valid interval (20-99)")
+               
+          if 'lambda' in request.inputs.keys():
+               self.lambda_ = float(request.inputs['lambda'][0].data)
+               if self.lambda_ < 0.2 or self.lambda_ > 0.3:
+                    # TBD: use pywps API
+                    raise ProcessError("lambda: outside of valid interval (0.1-0.3)")
+          else:
+               self.lambda_ = 0.2
 
           self.output_dir = os.path.join('/tmp', '{}_{}'.format(
                self.identifier, os.getpid())
@@ -223,24 +246,20 @@ class SubDayPrecipProcess(Process):
           # set computational region
           Module('g.region', raster="H_N2T360@rain6h")
 
-          if 'input' in request.inputs.keys():
-               LOGGER.debug("Subday computation started")
+          if self.map_name:
+               LOGGER.debug("Computation started")
+               
                start = time.time()
                self.report_progress(1, "Starting computation")
 
                LOGGER.info("R: {}".format(self.rainlength))
+               
                if self.identifier == 'd-rain6h-timedist':
-                    LOGGER.info('Using v.rast.stats')
                     self._v_rast_stats(self.area_red)
-               else:
-                    LOGGER.info('Using r.subdayprecip.design')
-                    Module('g.region', raster=self.return_period[0])
-                    self.report_progress(10, "Performing r.subdayprecip.design")
-                    Module('r.subdayprecip.design',
-                           map=self.map_name, return_period=self.return_period,
-                           rainlength=self.rainlength, area_size=self.area_size
-                    )
-               LOGGER.info("Subday computation finished: {} sec".format(time.time() - start))
+               elif self.identifier == 'rain6h-cn-runoff':
+                    self.compute_volume(self.cn2, self.lambda_, self.area)
+                    
+               LOGGER.info("Computation finished: {} sec".format(time.time() - start))
 
           # export output
           if self.identifier == 'd-rain6h-timedist':
@@ -412,3 +431,21 @@ class SubDayPrecipProcess(Process):
      
      def export(self):
           pass
+
+     def point_map_from_obs(self, obs_x, obs_y):
+          p = Module('m.proj',
+                     coordinates=[obs_x, obs_y],
+                     proj_in='+init=epsg:4326', proj_out='+init=epsg:5514', stdout_=PIPE)
+          x, y, z = p.outputs.stdout.split('|')
+          if x == '*' or y == '*':
+               raise ProcessError(
+                    f"Unable to transform input coordinates ({obs_x}, {obs_y}) into EPSG:5514. "
+                    "Input coordinates are expected in WGS-84.")
+          map_name = "input_point_map"
+          vector_input="1|{}|{}".format(x, y)
+          LOGGER.debug('Input: {}'.format(vector_input))
+          Module('v.in.ascii', input='-', output=map_name,
+                 cat=1, x=2, y=3, stdin_=vector_input)
+          Module('v.db.addtable', map=map_name)
+          
+          return map_name

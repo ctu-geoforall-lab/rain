@@ -3,6 +3,8 @@ server {
     server_name ${NGINX_HOST};
     access_log  off;
 
+    root /var/www/html;
+       
     client_max_body_size 50M;
 
     gzip                             off;
