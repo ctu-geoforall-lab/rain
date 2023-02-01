@@ -43,16 +43,22 @@ class TestWPS:
         assert len(processes) == self.num_processes
         assert any(process.identifier.startswith('d-rain6h') for process in processes)
 
-    def _run_job(self, process, inputs, ext=None):
+    def _run_job(self, process, inputs, ext=None, exception=None):
         execution = self._wps().execute(process, inputs)
         monitorExecution(execution)
-        assert execution.getStatus() == "ProcessSucceeded"
-
-        if ext:
-            ofile = self._get_filename() + ext
-            execution.getOutput(ofile)
+        if exception is None:
+            assert execution.getStatus() == "ProcessSucceeded"
+            if ext:
+                ofile = self._get_filename() + ext
+                execution.getOutput(ofile)
             
-            return ofile
+                return ofile
+        else:
+            assert len(execution.errors) > 0
+            assert execution.getStatus() == "Exception"
+            assert str(execution.errors[0].text).startswith(exception)
+
+        return None
 
     def _run_job_request(self, request_file, ext=None, url=None,
                          exception=None):
@@ -148,7 +154,7 @@ class TestWPS:
             exception="Process error: Limit 20km2 na vymeru zajmoveho uzemi prekrocen"
         )
 
-    def test_007_cn_rain6h(self):
+    def test_007_rain6h_cn_runoff(self):
         ofile = self._run_job(
             'rain6h-cn-runoff',
             [("obs_x", self.obs_x),
@@ -171,20 +177,31 @@ class TestWPS:
                 assert record[f"V_{rp}_m3"] >= 0
                 i += 1
 
-    # def test_007_smoderp2d_capabilities(self):
-    #     processes = self._wps('https://rain1.fsv.cvut.cz:4444/services/wps').processes
-    #     assert len(processes) == 2
-    #     assert any(process.identifier.startswith('smoderp') for process in processes)
+    def test_008_rain6h_cn_runoff101ha(self):
+        self._run_job(
+            'rain6h-cn-runoff',
+            [("obs_x", self.obs_x),
+             ("obs_y", self.obs_y),
+             ("cn2", self.cn2),
+             ("lambda", self.lambda_),
+             ("area", "101")] + self._request_multi("return_period"),
+            exception="Process error: area: outside of valid interval 0.1-100"
+        )
+                
+    def test_009_smoderp2d_capabilities(self):
+        processes = self._wps('https://rain1.fsv.cvut.cz:4444/services/wps').processes
+        assert len(processes) == 2
+        assert any(process.identifier.startswith('smoderp') for process in processes)
 
-    # def test_008_profile1d(self):
-    #     ofile = self._run_job_request(        
-    #         Path(__file__).parent / 'request-profile1d.xml',
-    #         '.csv',
-    #         'https://rain1.fsv.cvut.cz:4444/services/wps'
-    #     )
+    def test_010_profile1d(self):
+        ofile = self._run_job_request(        
+            Path(__file__).parent / 'request-profile1d.xml',
+            '.csv',
+            'https://rain1.fsv.cvut.cz:4444/services/wps'
+        )
 
-    #     with open(ofile) as fd:
-    #         data = DictReader(fd)
-    #         for row in data:
-    #             assert float(row["length[m]"]) > 0
-    #             assert row["soilVegFID"] in ("HXGEO", "PXOP")
+        with open(ofile) as fd:
+            data = DictReader(fd)
+            for row in data:
+                assert float(row["length[m]"]) > 0
+                assert row["soilVegFID"] in ("HXGEO", "PXOP")
