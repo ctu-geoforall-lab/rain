@@ -9,8 +9,8 @@ from osgeo import ogr, gdal
 
 class TestWPS:
     # url='https://rain1.fsv.cvut.cz/services/wps'
-    url='http://localhost/services/wps'
-    # url='http://geo102.fsv.cvut.cz:8084/services/wps'    
+    # url='http://localhost/services/wps'
+    url='http://geo102.fsv.cvut.cz:8084/services/wps'    
     input_data=ComplexDataInput("http://rain.fsv.cvut.cz/geodata/test.gml")
     key="HLGP_ID"
     return_period=["N2","N5","N100"]
@@ -20,11 +20,11 @@ class TestWPS:
     value="25"
     area_size="10000"
     num_processes = 4
-    obs_x="15.474897"
-    obs_y="49.803578"
-    cn2="60"
-    area="100"
-    ia="0.2"
+    obs_x="13.9705854384"
+    obs_y="49.8800531434"
+    cn2="81"
+    area="5.7"
+    lambda_="0.2"
 
     def _wps(self, url=None):
         return WebProcessingService(
@@ -154,7 +154,7 @@ class TestWPS:
             [("obs_x", self.obs_x),
              ("obs_y", self.obs_y),
              ("cn2", self.cn2),
-             ("ia", self.ia),
+             ("lambda", self.lambda_),
              ("area", self.area)] + self._request_multi("return_period"),
             '.json'
         )

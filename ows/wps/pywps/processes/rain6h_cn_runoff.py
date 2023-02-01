@@ -66,7 +66,7 @@ class Rain6hCnRunoff(SubDayPrecipProcess):
                              stdout_=PIPE)
         return float(v_what_rast.outputs.stdout.splitlines()[0])
             
-    def compute_volume(self, CN2, IA, area):
+    def compute_volume(self, CN2, Lambda, area):
         CN3  = 23 * CN2 / (10 + 0.13 * CN2)
 
         # get raster values
@@ -95,8 +95,8 @@ class Rain6hCnRunoff(SubDayPrecipProcess):
             rp = rp.lstrip('N')
             rast_name = f"H_N{rp}T360"
             H_N = raster_value[rast_name]
-            VCN2 = self._scs_cn_volume(CN2, IA, H_N, area)
-            VCN3 = self._scs_cn_volume(CN3, IA, H_N, area)
+            VCN2 = self._scs_cn_volume(CN2, Lambda, H_N, area)
+            VCN3 = self._scs_cn_volume(CN3, Lambda, H_N, area)
 
             V = 0
             for shape in self._shapes:
