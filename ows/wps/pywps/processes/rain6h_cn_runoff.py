@@ -33,13 +33,12 @@ class Rain6hCnRunoff(SubDayPrecipProcess):
         A = 25.4 * ((1000/CN) - 10)
         I_a = Lambda * A
         if H_s > I_a:
-            H_O = ((H_s - I_a) * (H_s - I_a))/(H_s - I_a + A)
+            H_O = (((H_s - I_a) * (H_s - I_a))/(H_s - I_a + A)) / 1000 # mm -> m
         else:
             H_O = 0
 
-        V = H_O * area
+        return H_O * (area * 10000) # ha -> m2
 
-        return V
 
     @staticmethod
     def _reclass_qapi(qAPI):
