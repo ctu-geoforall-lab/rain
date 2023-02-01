@@ -50,7 +50,7 @@ function callWPS(){
         value: document.getElementById('ia').value
     });
     // Setting outputs
-    var outputValue = new OpenLayers.WPS.LiteralPut({identifier:"output"});
+    var outputValue = new OpenLayers.WPS.ComplexPut({identifier:"output", asReference: "true"});
 
     
     // Creating Process
@@ -72,8 +72,11 @@ function callWPS(){
 
 // Everything went ok 
 function onExecuted(process) {
-    result = process.getOutput("output").value;
-    showResult(result);
+    url = process.getOutput("output").getValue();
+    
+    $.getJSON(url, function(data) {
+	showResult(data[0]);
+    });
 }
 
 // WPS exception
@@ -91,7 +94,7 @@ function triggerGritter(text){
     $.gritter.add({title:"Status:",text:"<p align='center' class='textGitter'>"+text+"<\p>"});
 };
 
-function showResult(text){
+function showResult(result){
     var div = document.getElementById('resultNote');
     var raster = document.getElementById('raster').value;
     var area = document.getElementById('area').value;
@@ -101,7 +104,7 @@ function showResult(text){
     var lat = document.getElementById('lat').value;
     var lon = document.getElementById('lon').value;
 
-    if (text == undefined) {
+    if (result == undefined) {
 	div.innerHTML = 'Chyba ve výpočtu';
     }
     else {
@@ -110,10 +113,13 @@ function showResult(text){
 	div.innerHTML += '<table><tr><td>GPS:</td><td>' + parseFloat(lat).toFixed(5) + ', ' + parseFloat(lon).toFixed(5) +
 	    '</td></tr><tr><td>Doba opakování:</td><td>' + String(raster) +
 	    '</td></tr><tr><td>Plocha:</td><td>' + parseFloat(area).toFixed(1) + ' ha' +
-	    '</td></tr><tr><td>CN2:</td><td>' + parseFloat(cn2).toFixed(1) +
-	    '</td></tr><tr><td>Koeficient počáteční ztráty:</td><td>' + parseFloat(ia).toFixed(1) +             
-	    '</td></tr><tr><td>Objem přímého odtoku vážený podle qAPI a zastoupení tvarů:</td><td><font size=+1 color="red">' + parseFloat(text).toFixed(2) +
-	    '</font> m3</td></tr></table>';
+	    '</td></tr><tr><td>CN2:</td><td>' + parseFloat(cn2).toFixed(0) +
+	    '</td></tr><tr><td>CN3:</td><td>' + result['CN3_' + String(raster)] +             
+	    '</td></tr><tr><td>Objem odtoku pro CN2:</td><td>' + result['VCN2_' + String(raster) + '_m3'] + ' m3' +
+	    '</td></tr><tr><td>Objem odtoku pro CN3:</td><td>' + result['VCN3_' + String(raster) + '_m3'] + ' m3' +	    
+	    '</td></tr><tr><td>Objem přímého odtoku vážený podle qAPI a zastoupení tvarů:</td><td><font size=+1 color="red">' + result['V_' + String(raster) + '_m3'] +
+	    '</font> m3' +
+            '</td></tr></table>';
     }
 };
 

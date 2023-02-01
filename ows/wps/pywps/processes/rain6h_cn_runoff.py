@@ -106,7 +106,7 @@ class Rain6hCnRunoff(SubDayPrecipProcess):
 
             self._result.append({
                 f"H_N{rp}_T360_mm": float(f"{H_N:.3f}"),
-                f"CN3_N{rp}": int(CN3),
+                f"CN3_N{rp}": round(CN3),
                 f"VCN2_N{rp}_m3": float(f"{VCN2:.2f}"),
                 f"VCN3_N{rp}_m3": float(f"{VCN3:.2f}"),
                 f"V_N{rp}_m3": float(f"{V:.2f}")
