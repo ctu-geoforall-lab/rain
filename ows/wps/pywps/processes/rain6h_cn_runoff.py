@@ -105,7 +105,7 @@ class Rain6hCnRunoff(SubDayPrecipProcess):
                 V += (1 - nsa) * raster_value[f"{shape}_{int(rp):03d}"] * VCN3
 
             self._result.append({
-                f"H_N{rp}_T360_mm": float(f"{H_N:.3f}"),
+                f"H_N{rp}_T360_mm": float(f"{H_N:.1f}"),
                 f"CN3_N{rp}": round(CN3),
                 f"VCN2_N{rp}_m3": float(f"{VCN2:.2f}"),
                 f"VCN3_N{rp}_m3": float(f"{VCN3:.2f}"),
