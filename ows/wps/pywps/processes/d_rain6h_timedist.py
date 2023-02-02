@@ -106,7 +106,6 @@ class DRain6hTimedist(DRain6hTimedistBase, SubDayPrecipProcess):
           return self.output_shapes, self.output_probabilities
 
      def export_shapes(self, fd, shapes, data):
-          nl = '\r\n'
           # write header
           fd.write('{key}{sep}CAS_min'.format(key=self.keycolumn, sep=self.sep))
           for rp in self.return_period:
@@ -114,7 +113,7 @@ class DRain6hTimedist(DRain6hTimedistBase, SubDayPrecipProcess):
                     fd.write('{sep}H_{rast}typ{stype}_mm'.format(
                               sep=self.sep, stype=stype, rast=rp)
                     )
-          fd.write(nl)
+          fd.write(self.nl)
 
           # process features
           self.report_progress(25, f"Exporting shapes")
@@ -137,27 +136,22 @@ class DRain6hTimedist(DRain6hTimedistBase, SubDayPrecipProcess):
                     fd.write('{seps}'.format(
                          seps=self.sep * len(attrib[1:] * len(self.shapetype)))
                     )
-                    fd.write(nl)
+                    fd.write(self.nl)
 
      def export_probabilities(self, fd, data):
-          nl = '\r\n'
           # write header
-          fd.write('{key}'.format(key=self.keycolumn))
+          fd.write(f'{self.keycolumn}')
           # H columns
           for col in data['columns'][1:]: # skip key column
-               fd.write('{sep}{col}_mm'.format(sep=self.sep, col=col))
+               fd.write(f'{self.sep}{col}_mm')
           # P columns
           for rp in self.return_period:
                for stype in self.shapetype:
-                    fd.write('{sep}P_{rast}tvar{stype}_%'.format(
-                         sep=self.sep, stype=stype, rast=rp)
-                    )
+                    fd.write(f'{self.sep}P_{rp}tvar{stype}_%')
           # QAPI columns
           for stype in self.shapetype:
-               fd.write('{sep}QAPI_tvar{stype}'.format(
-                    sep=self.sep, stype=stype)
-               )
-          fd.write(nl)
+               fd.write(f'{self.sep}QAPI_tvar{stype}')
+          fd.write(self.nl)
 
           # compute timeshape percentage
           data_perc = self._compute_timeshapes_perc()
@@ -165,22 +159,23 @@ class DRain6hTimedist(DRain6hTimedistBase, SubDayPrecipProcess):
           # process features
           self.report_progress(90, "Exporting probabilities")
           for fid, attrib in data['values'].items():
-               LOGGER.debug('FID={}: {}'.format(attrib[0], attrib[1:]))
+               prec=1
+               LOGGER.debug(f'FID={attrib[0]}: {attrib[1]}')
                valid = True if float(attrib[1]) > 0 else False
-               fd.write('{fid}'.format(
-                    fid=attrib[0]
-               ))
+               fd.write(f'{attrib[0]}')
                for val in data['values'][fid][1:]: # skip key column
-                    fd.write('{sep}{val:.1f}'.format(sep=self.sep, val=float(val)))
+                    fd.write(f'{self.sep}{float(val):.{prec}f}')
+               i = 1
                for val in data_perc['values'][fid]:
+                    if i == len(self.return_period) * len(self.shapetype):
+                         prec=2
                     if valid:
                          val = float(val)
                     else:
                          val = -1
-                    fd.write('{sep}{val:.1f}'.format(
-                         sep=self.sep, val=val
-                    ))
-               fd.write(nl)
+                    fd.write(f'{self.sep}{val:.{prec}f}')
+                    i += 1
+               fd.write(self.nl)
 
 if __name__ == "__main__":
      process = Process()

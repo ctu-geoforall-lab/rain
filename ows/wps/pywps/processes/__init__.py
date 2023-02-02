@@ -176,6 +176,7 @@ class SubDayPrecipProcess(Process):
           self.return_period = None
           self.rainlength = None
           self.shapetype = None
+          self.nl = '\r\n'
 
           self.output = None # to be defined by descendant
           self.output_dir = None

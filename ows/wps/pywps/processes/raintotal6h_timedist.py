@@ -49,21 +49,18 @@ class Raintotal6hTimedist(DRain6hTimedistBase, SubDayPrecipProcess):
           # write header
           fd.write('CAS_min')
           for stype in self.shapetype:
-               fd.write('{sep}H_tvar{stype}_mm'.format(
-                    sep=self.sep, stype=stype)
-               )
-          fd.write('\r\n')
+               fd.write(f'{self.sep}H_tvar{stype}_mm')
+          fd.write(self.nl)
 
           # process features
           for s in shapes:
                time = s[0]
                timeshapes = s[1:]
-               fd.write('{time}'.format(time=time, sep=self.sep))
+               fd.write(f'{time}')
                for shape in timeshapes:
-                    fd.write('{sep}{val:.3f}'.format(sep=self.sep,
-                                                 val=(float(self.value)*float(shape))/100)
-                    )
-               fd.write('\r\n')
+                    val = (float(self.value) * float(shape)) / 100
+                    fd.write(f'{self.sep}{val:.1f}')
+               fd.write(self.nl)
 
 if __name__ == "__main__":
      process = Process()

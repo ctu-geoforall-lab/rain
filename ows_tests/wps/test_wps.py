@@ -12,6 +12,8 @@ class TestWPS:
     url='http://localhost/services/wps'
     # url='http://geo102.fsv.cvut.cz:8084/services/wps'    
     input_data=ComplexDataInput("http://rain.fsv.cvut.cz/geodata/test.gml")
+    dump_ofile=False
+    
     key="HLGP_ID"
     return_period=["N2","N5","N100"]
     rainlength="360"
@@ -43,6 +45,12 @@ class TestWPS:
         assert len(processes) == self.num_processes
         assert any(process.identifier.startswith('d-rain6h') for process in processes)
 
+    def _dump_ofile(self, filename):
+        if not self.dump_ofile or Path(filename).suffix == '.zip':
+            return
+        with open(filename, 'r') as fd:
+            print(fd.read())
+
     def _run_job(self, process, inputs, ext=None, exception=None):
         execution = self._wps().execute(process, inputs)
         monitorExecution(execution)
@@ -51,7 +59,8 @@ class TestWPS:
             if ext:
                 ofile = self._get_filename() + ext
                 execution.getOutput(ofile)
-            
+                self._dump_ofile(ofile)
+
                 return ofile
         else:
             assert len(execution.errors) > 0
@@ -71,6 +80,8 @@ class TestWPS:
             assert execution.getStatus() == "ProcessSucceeded"
             ofile = self._get_filename() + ext
             execution.getOutput(ofile)
+            self._dump_ofile(ofile)
+
             return ofile
         else:
             assert len(execution.errors) > 0
@@ -92,7 +103,12 @@ class TestWPS:
             nlines = 0
             for row in data:
                 for f in fields:
-                    assert float(row[f]) > 0
+                    value = float(row[f])
+                    assert value >= 0
+                    if f.startswith('P'):
+                        assert value >= 0 and value <= 100
+                    if f.startswith('QAPI'):
+                        assert value >= 0 and value <= 1
                 nlines += 1
 
             assert nlines == 15
@@ -131,7 +147,7 @@ class TestWPS:
             for row in data:
                 assert int(row["CAS_min"]) == time
                 for st in self.shape:
-                    assert float(row[f"H_tvar{st}_mm"]) > 0                
+                    assert float(row[f"H_tvar{st}_mm"]) >= 0
                 time += 5
                 
     def test_005_soil_texture_hsg(self):
