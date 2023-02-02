@@ -9,7 +9,7 @@ from pywps.validator.mode import MODE
 from grass.exceptions import CalledModuleError
 from grass.pygrass.modules import Module
 
-class SoilTextureHsgProcess(Process):
+class SoilTextureHsg(Process):
     def __init__(self):
         self.layers = ["hsg", "usda-texture-class", "sand", "silt", "clay"]
         inputs = [
@@ -39,7 +39,7 @@ class SoilTextureHsgProcess(Process):
             )
         ]
 
-        super(SoilTextureHsgProcess, self).__init__(
+        super().__init__(
             self._handler,
             identifier="soil-texture-hsg",
             version="1.0",

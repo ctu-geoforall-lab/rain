@@ -18,7 +18,7 @@ from zipfile import ZipFile
 from . import SubDayPrecipProcess, LOGGER
 import grass.script as gscript # TODO: replace by pyGRASS
 
-class SubDayPrecipShapesBase(object):
+class DRain6hTimedistBase(object):
      def __init__(self):
           self.mapset = 'rain6h'
           self.sep = ','
@@ -37,7 +37,7 @@ class SubDayPrecipShapesBase(object):
                                         self.mapset, 'sqlite/sqlite.db')
           )
 
-class SubDayPrecipShapes(SubDayPrecipShapesBase, SubDayPrecipProcess):
+class DRain6hTimedist(DRain6hTimedistBase, SubDayPrecipProcess):
      def __init__(self):
           SubDayPrecipProcess.__init__(self,
                identifier="d-rain6h-timedist",
@@ -47,7 +47,7 @@ class SubDayPrecipShapes(SubDayPrecipShapesBase, SubDayPrecipProcess):
                output_params=['output_shapes', 'output_probabilities'],
                version=3.0
           )
-          SubDayPrecipShapesBase.__init__(self)
+          DRain6hTimedistBase.__init__(self)
 
      def _compute_timeshapes_perc(self):
           # filename syntax: sjtsk_zastoupeni_shluku_cA_100yr_perc

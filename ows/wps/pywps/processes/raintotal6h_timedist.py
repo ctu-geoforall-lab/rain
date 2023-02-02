@@ -16,21 +16,21 @@ import time
 from zipfile import ZipFile
 
 from . import SubDayPrecipProcess, LOGGER
-from .subdayprecip_design_shapes import SubDayPrecipShapesBase
+from .d_rain6h_timedist import DRain6hTimedistBase
 
 import grass.script as gscript # TODO: replace by pyGRASS
 
-class SubDayPrecipShapesTotal(SubDayPrecipShapesBase, SubDayPrecipProcess):
+class Raintotal6hTimedist(DRain6hTimedistBase, SubDayPrecipProcess):
      def __init__(self):
           SubDayPrecipProcess.__init__(self,
                identifier="raintotal6h-timedist",
-                                       title="Nástroj raintotal6h-timedist je doplňkovým nástrojem, který vychází z předchozí varianty d-rain-timedist.",
+               title="Nástroj raintotal6h-timedist je doplňkovým nástrojem, který vychází z předchozí varianty d-rain-timedist.",
                abstract="Nástroj raintotal6h-timedist je doplňkovým nástrojem, který vychází z předchozí varianty d-rain-timedist. Návrhová 6hodinová srážka není odvozována pro žádnou konkrétní lokalitu ani dobu opakování, nástroj pouze rozloží uživatelem zadaný 6hodinový úhrn do zvolených variant ze šesti typizovaných průběhů intenzit A–F, bez bližší specifikace pravděpodobnosti jejich výskytu (ta je vázána vždy ke konkrétní lokalitě a době opakování).",
                input_params=['value', 'shape'],
                output_params=['output_shapes'],
                version=3.0
           )
-          SubDayPrecipShapesBase.__init__(self)
+          DRain6hTimedistBase.__init__(self)
 
      def export(self):
           LOGGER.debug("Shapes computation started")

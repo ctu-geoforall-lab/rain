@@ -9,15 +9,15 @@ from pywps.app.Service import Service
 os.environ['GISBASE'] = '/usr/lib/grass78' 
 sys.path.append(os.path.join(os.environ["GISBASE"], "etc", "python"))
 
-from processes.subdayprecip_design_shapes import SubDayPrecipShapes
-from processes.subdayprecip_design_shapes_total import SubDayPrecipShapesTotal
-from processes.soil_texture_hsg import SoilTextureHsgProcess
+from processes.d_rain6h_timedist import DRain6hTimedist
+from processes.raintotal6h_timedist import Raintotal6hTimedist
+from processes.soil_texture_hsg import SoilTextureHsg
 from processes.rain6h_cn_runoff import Rain6hCnRunoff
 
 processes = [
-    SubDayPrecipShapes(),
-    SubDayPrecipShapesTotal(),
-    SoilTextureHsgProcess(),
+    DRain6hTimedist(),
+    Raintotal6hTimedist(),
+    SoilTextureHsg(),
     Rain6hCnRunoff()
 ]
 
