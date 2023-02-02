@@ -191,6 +191,12 @@ class TestWPS:
                 assert record[f"VCN2_{rp}_m3"] >= 0
                 assert record[f"VCN3_{rp}_m3"] >= 0
                 assert record[f"V_{rp}_m3"] >= 0
+                if rp == "N100":
+                    assert record[f"CN3_{rp}"] == 91
+                    assert record[f"VCN2_{rp}_m3"] == 1233.82
+                    assert record[f"VCN3_{rp}_m3"] == 2134.57
+                    assert record[f"V_{rp}_m3"] == 1336.39
+
                 i += 1
 
     def test_008_rain6h_cn_runoff101ha(self):
