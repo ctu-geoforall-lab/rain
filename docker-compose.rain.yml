@@ -1,5 +1,3 @@
-# Generated with: gisquick-cli compose --profile=letsencrypt --server-name=rain1.fsv.cvut.cz
-
 version: "2.3"
 
 x-logging: &default-logging
@@ -7,109 +5,51 @@ x-logging: &default-logging
   options:
     max-size: "10m"
     max-file: "5"
+    tag: "{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}"
 
 services:
-
-  qgisserver:
+  ows:
     restart: always
-    image: gisquick/qgis-server:3.16-debian
-    mem_limit: 2000M
-    #scale: 2
+    build: ows/
     volumes:
-      - publish:/publish/
-    environment:
-      - QGIS_SERVER_IGNORE_BAD_LAYERS=1
-      - QGIS_SERVER_PARALLEL_RENDERING=true
-    expose:
-      - 5555
-
-  django:
-    restart: always
-    image: gisquick/django:publishing-redesign
-    volumes:
-      - db-data:/var/www/gisquick/data/
-      - publish:/publish/
-      - assets:/assets/
-      - media:/var/www/gisquick/media/
-# Rain modification starts here
-      - ./gisquick/django/settings.custom/:/var/www/gisquick/djproject/custom/:ro
-# Rain modification ends here
-    environment:
-      - GUNICORN_WORKERS=2
-      - GUNICORN_ERRORLOG=-
-      - GUNICORN_ACCESSLOG=-
-      - DJANGO_STATIC_URL=/django/static/
-      - DJANGO_STATIC_ROOT=/assets/django/static/
-      - DJANGO_MEDIA_URL=/media/
-      - DJANGO_MEDIA_ROOT=/var/www/gisquick/media/
-      - DJANGO_LANGUAGE_CODE=en-us
-      - DJANGO_SECRET_KEY=${SECRET_KEY}
-      - GISQUICK_SQLITE_DB=/var/www/gisquick/data/gisquick.sqlite3
-      - GISQUICK_ACCOUNTS_ENABLED=False
-      - GISQUICK_MAPSERVER_URL=http://nginx:10080/qgis-server
-    env_file:
-# Rain modification starts here
-      - gisquick/django.env
-# Rain modification ends here
-    expose:
-      - 8000
-    logging: *default-logging
-
-  go:
-    restart: always
-    image: gisquick/settings:publishing-redesign
-    volumes:
-      - publish:/publish/
-      - media:/var/www/media/
-    environment:
-      - PROJECTS_ROOT=/publish
-      - MAP_CACHE_ROOT=/var/www/media/cache
-      - SERVER_URL=http://django:8000
-      - MAPSERVER_URL=http://nginx:10080/qgis-server
-      - MAX_FILE_UPLOAD=200M
-      - MAX_PROJECT_SIZE=200M
-    expose:
-      - 8001
-    logging: *default-logging
-
-  nginx:
-    restart: always
-    image: nginx
-    volumes:
-      - assets:/var/www/html/
-      - media:/var/www/media/
-# Rain modification starts here
-#      - certbot:/var/www/certbot/
-      - /etc/letsencrypt:/etc/letsencrypt/
-      - ./gisquick/nginx/conf.letsencrypt/:/etc/nginx/conf.d/
-      - ./gisquick/nginx/error/:/var/www/error/
-      - wps_output_data:/var/www/wps/output/
-      - docs_data:/var/www/html/docs
-      - ./openlayers2:/var/www/html/d-rain-point/
-# Rain modification ends here      
+      - ./ows/nginx/conf.d:/etc/nginx/conf.d
+      - ./ows/nginx/log:/var/log/nginx
+      - ./ows/wps/pywps:/opt/pywps
+      - ./ows/wps/log:/var/log/pywps
+      - ./ows/wps/data/grass_location:/data/grass_location
+      - wps_output_data:/var/www/wps/output
+      - ./ows/wms:/opt/mapserv/wms
+      - ./ows/wms/data:/opt/mapserv/wms_data
+      - ./ows/wms/log:/var/log/mapserv
+      - ./ows/wfs:/opt/mapserv/wfs
+      - ./qgis/styles:/data/styles
+      - ./rain6h-cn-runoff:/var/www/html/rain6h-cn-runoff
     ports:
-      - 8083:80
-      - 443:443
-    logging: *default-logging
-# Rain modification starts here
+      - 8081
+      - 80
+    env_file:
+      - ./ows/ows.env      
+    environment:
+      - NGINX_HTTP=https
+      - NGINX_HOST=rain1.fsv.cvut.cz
+      - NGINX_PORT=433
     links:
-      - docs
+      - db
+
+  ows_tests:
+    restart: always
+    build: ows_tests/
+    depends_on:
       - ows
-# Rain modification ends here
-
-  web-map:
-    image: gisquick/web-map
     volumes:
-      - assets:/assets/
-    command: "copy-assets /var/www /assets/map"
+      - ./ows_tests/wps:/opt/tests/wps
+      - ./ows_tests/log:/var/log/ows_tests
+      - ./ows/wps/log:/data
+    environment:
+      - OWS_TEST_REPEAT=24
+    env_file:
+      - ./notifier.env
 
-  web-user:
-    image: gisquick/web-user:publishing-redesign
-    volumes:
-      - assets:/assets/
-    command: "copy-assets /var/www /assets/user"
-
-# Rain modification starts here
   db:
     restart: always
     build: ows/db/
@@ -121,56 +61,164 @@ services:
       - POSTGRES_PASSWORD=20rain20
       - BPEJ_FILE=bpej_2021010410908.zip
 
-  ows:
-    restart: always
-    build: ows/
-    volumes:
-      - ./ows/nginx/conf.d/:/etc/nginx/conf.d/
-      - ./ows/nginx/log/:/var/log/nginx/
-      - ./ows/wps/pywps/:/opt/pywps
-      - ./ows/wps/log/:/var/log/pywps
-      - ./ows/wps/grassdata:/data/grassdata      
-      - ./ows/wms:/opt/mapserv/wms
-      - ./ows/wms/data:/opt/mapserv/wms_data
-      - ./ows/wms/log/:/var/log/mapserv
-      - ./ows/wfs:/opt/mapserv/wfs
-      - wps_output_data:/var/www/wps/output/
-      - ./openlayers2:/var/www/html/d-rain-point/
-      - ./qgis/styles:/data/styles      
-    ports:
-      - 8081
-      - 80
-    env_file:
-      - ./ows/ows.env
-    environment:
-      - NGINX_HTTP=https
-      - NGINX_HOST=rain1.fsv.cvut.cz
-      - NGINX_PORT=443
-    links:
-      - db
-
-  ows_tests:
-    restart: unless-stopped
-    build: ows_tests/
-    depends_on:
-      - ows
-    volumes:
-      - ./ows_tests/wps:/opt/tests/wps
-      - ./ows_tests/log/:/var/log/ows_tests
-      - ./ows/wps/log/:/data
-    environment:
-      - OWS_TEST_REPEAT=24
-    env_file:
-      - ./notifier.env
+  # docs:
+  #   build: docs/
+  #   volumes:
+  #     - ./docs/:/docs/
+  #     - docs_data:/docs/_build/html
       
-  docs:
-    build: docs/
+# Gisquick starts here
+  qgis-server:
+    mem_limit: 3000M
+    restart: always
+    image: gisquick/qgis-server:3.22
     volumes:
-      - ./docs/:/docs/
-      - docs_data:/docs/_build/html
+      - publish:/publish/
+      - ./qgis/plugins:/usr/lib/qgis/python/plugins
+    environment:
+      - QGIS_SERVER_IGNORE_BAD_LAYERS=1
+      - QGIS_SERVER_LOG_LEVEL=0
+      - QGIS_PLUGINPATH=/usr/lib/qgis/python/plugins/
+      - QGIS_SERVER_PARALLEL_RENDERING=true
+    expose:
+      - 5555
+    logging: *default-logging
+
+  postgres:
+    restart: always
+    image: postgres:12-alpine
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    env_file:
+      - postgres.env
+    ports:
+      - 5432
+    logging: *default-logging
+
+  redis:
+    restart: always
+    image: redis
+    volumes:
+      - redisdata:/var/run/redis
+    ports:
+      - "6379"
+    logging: *default-logging
+    command: redis-server --port 6379
+
+  app:
+    depends_on:
+      - postgres
+      - redis
+    restart: always
+    image: gisquick/server
+    volumes:
+      - publish:/publish/
+    environment:
+      - GISQUICK_PROJECTS_ROOT=/publish
+      - GISQUICK_MAPSERVER_URL=http://caddy:10080/qgis-server
+      - GISQUICK_LANGUAGE=cs
+      - GISQUICK_SIGNUP_API=False
+      - REDIS_ADDR=redis:6379
+      - AUTH_SESSION_EXPIRATION=96h
+      - AUTH_SECRET_KEY=${SECRET_KEY}
+      - WEB_SITE_URL=${SERVER_URL}
+    env_file:
+      - postgres.env
+    ports:
+      - 3000
+    logging: *default-logging
+
+
+  web-map:
+    image: gisquick/web-map
+    volumes:
+      - assets:/assets/
+
+  web-settings:
+    image: gisquick/web-settings
+    volumes:
+      - assets:/assets/
+
+  caddy:
+    depends_on:
+      - app
+    restart: always
+    image: caddy:2-alpine
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+      - assets:/var/www/html/
+      - ./data/media:/var/www/media/
+# Rain modification starts here
+      - /etc/letsencrypt:/etc/letsencrypt/
+# Rain modification ends here
+    ports:
+      - 2019
+      - 10080
+      - 8083:8083
+    logging: *default-logging
+# Rain modification starts here
+    links:
+    # - docs
+      - ows
 # Rain modification ends here
 
+
+  prometheus:
+    restart: unless-stopped
+    image: prom/prometheus
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    ports:
+      - 9090
+    logging: *default-logging
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--web.enable-lifecycle'
+
+  loki:
+    restart: always
+    image: grafana/loki:2.6.1
+    volumes:
+      - ./loki/loki-config.yaml:/etc/loki/config.yaml
+      - loki:/loki
+    ports:
+      - 3100
+    logging: *default-logging
+    command: -config.file=/etc/loki/config.yaml
+
+  promtail:
+    restart: always
+    image: grafana/promtail:2.6.1
+    volumes:
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - ./promtail:/etc/promtail-config/
+    logging: *default-logging
+    command: -config.file=/etc/promtail-config/config.yml
+
+
+  grafana:
+    restart: unless-stopped
+    image: grafana/grafana
+    volumes:
+      - grafana-data:/var/lib/grafana
+    environment:
+      - GF_SERVER_ROOT_URL=${SERVER_URL}/admin/grafana/
+      - GF_SERVER_SERVE_FROM_SUB_PATH=true
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_USERS_VIEWERS_CAN_EDIT=true
+    ports:
+      - 3000
+    logging: *default-logging
+# Gisquick ends here
+
 volumes:
+# Gisquick starts here
   publish:
     driver: local
     driver_opts:
@@ -180,11 +228,13 @@ volumes:
 # Rain modification starts here      
       o: bind
   db-data:
+  redisdata:
   assets:
-  media:
-  certbot:
-  letsencrypt:
-# Rain modification starts here
+  prometheus_data:
+  grafana-data:
+  loki:
+  caddy_data:
+  caddy_config:
+# Gisquick ends here
   wps_output_data:
-  docs_data:
-# Rain modification ends here
+  # docs_data:
