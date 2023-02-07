@@ -74,7 +74,7 @@ services:
     image: gisquick/qgis-server:3.22
     volumes:
       - publish:/publish/
-      - ./qgis/plugins:/usr/lib/qgis/python/plugins
+      - ./gisquick/qgis/plugins:/usr/lib/qgis/python/plugins
     environment:
       - QGIS_SERVER_IGNORE_BAD_LAYERS=1
       - QGIS_SERVER_LOG_LEVEL=0
@@ -145,18 +145,19 @@ services:
     restart: always
     image: caddy:2-alpine
     volumes:
-      - ./caddy/Caddyfile:/etc/caddy/Caddyfile
+      - ./gisquick/caddy/Caddyfile:/etc/caddy/Caddyfile
       - caddy_data:/data
       - caddy_config:/config
       - assets:/var/www/html/
-      - ./data/media:/var/www/media/
+      - ./gisquick/data/media:/var/www/media/
 # Rain modification starts here
-      - /etc/letsencrypt:/etc/letsencrypt/
+#      - /etc/letsencrypt:/etc/letsencrypt/
 # Rain modification ends here
     ports:
       - 2019
       - 10080
-      - 8083:8083
+      - 80:80
+      - 443:443
     logging: *default-logging
 # Rain modification starts here
     links:
@@ -169,7 +170,7 @@ services:
     restart: unless-stopped
     image: prom/prometheus
     volumes:
-      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./gisquick/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
       - prometheus_data:/prometheus
     ports:
       - 9090
@@ -185,7 +186,7 @@ services:
     restart: always
     image: grafana/loki:2.6.1
     volumes:
-      - ./loki/loki-config.yaml:/etc/loki/config.yaml
+      - ./gisquick/loki/loki-config.yaml:/etc/loki/config.yaml
       - loki:/loki
     ports:
       - 3100
@@ -197,7 +198,7 @@ services:
     image: grafana/promtail:2.6.1
     volumes:
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
-      - ./promtail:/etc/promtail-config/
+      - ./gisquick/promtail:/etc/promtail-config/
     logging: *default-logging
     command: -config.file=/etc/promtail-config/config.yml
 
