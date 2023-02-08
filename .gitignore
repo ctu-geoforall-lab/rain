@@ -17,3 +17,4 @@ rain6h-cn-runoff/main.js
 notifier.env
 ows_tests/log/
 docker-compose.yml
+postgres.env

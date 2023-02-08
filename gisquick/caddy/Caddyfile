@@ -1,0 +1,88 @@
+{
+  debug
+  admin 0.0.0.0:2019
+}
+
+(proxy_headers) {
+  header_up Host {host}
+  header_up X-Real-IP {remote_host}
+  header_up X-Forwarded-For {remote_host}
+}
+
+rain1.fsv.cvut.cz {
+  redir /admin/grafana /admin/grafana/
+
+  route /admin/grafana/* {
+    forward_auth app:3000 {
+      uri /api/auth/is_superuser
+    }
+    reverse_proxy grafana:3000
+  }
+
+  # rain start
+  redir /webapp/rain6h /
+  route /services/* {
+    reverse_proxy ows:80
+  }
+
+  route /wps/output/* {
+    root * /var/www/
+    file_server
+  }
+  # rain end
+  @app path /api/* /ws/*
+
+  encode @app gzip {
+    match {
+      header Content-Type text/*
+      header Content-Type application/json*
+      header Content-Type application/vnd.geo+json*
+      header Content-Type application/javascript*
+      header Content-Type image/svg+xml*
+    }
+  }
+
+  reverse_proxy @app app:3000 {
+    import proxy_headers
+    transport http {
+      dial_timeout 15s
+    }
+  }
+
+  rewrite / /map/
+
+  # client side routing
+  @user {
+    path /user /user/*
+    not path /user/static/*
+  }
+  @admin-page {
+    path /admin /admin/*
+    not path /admin/grafana*
+  }
+  rewrite @user /user/
+  rewrite @admin-page /admin/
+
+  # static files
+  root /media/* /var/www/
+  root * /var/www/html/
+  file_server {
+    precompressed gzip
+  }
+}
+
+:10080 {
+  log {
+    format json
+  }
+  @qgis path /qgis-server /qgis-server/*
+
+  reverse_proxy @qgis qgis-server:5555 {
+    transport fastcgi {
+      root /
+      dial_timeout 15s
+      read_timeout 30s
+      write_timeout 30s
+    }
+  }
+}
