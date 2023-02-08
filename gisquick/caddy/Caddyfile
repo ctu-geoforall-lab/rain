@@ -20,8 +20,14 @@ rain1.fsv.cvut.cz {
   }
 
   # rain start
+  redir /webapp/rain6h /
   route /services/* {
     reverse_proxy ows:80
+  }
+
+  route /wps/output/* {
+    root * /var/www/
+    file_server
   }
   # rain end
   @app path /api/* /ws/*

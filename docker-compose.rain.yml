@@ -32,7 +32,7 @@ services:
     environment:
       - NGINX_HTTP=https
       - NGINX_HOST=rain1.fsv.cvut.cz
-      - NGINX_PORT=433
+      - NGINX_PORT=443
     links:
       - db
 
@@ -118,6 +118,7 @@ services:
       - GISQUICK_MAPSERVER_URL=http://caddy:10080/qgis-server
       - GISQUICK_LANGUAGE=cs
       - GISQUICK_SIGNUP_API=False
+      - GISQUICK_LANDING_PROJECT=rain/rain6h
       - REDIS_ADDR=redis:6379
       - AUTH_SESSION_EXPIRATION=96h
       - AUTH_SECRET_KEY=${SECRET_KEY}
@@ -151,7 +152,8 @@ services:
       - assets:/var/www/html/
       - ./gisquick/data/media:/var/www/media/
 # Rain modification starts here
-#      - /etc/letsencrypt:/etc/letsencrypt/
+      - wps_output_data:/var/www/wps/output/
+      - ./rain6h-cn-runoff:/var/www/html/rain6h-cn-runoff
 # Rain modification ends here
     ports:
       - 2019
