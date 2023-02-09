@@ -8,7 +8,7 @@ QJ1520265 project, see http://rain.fsv.cvut.cz.
 ### Build image
 
 ```
-docker-compose build
+docker compose build
 ```
 
 ### Run container
@@ -18,16 +18,16 @@ data](https://www.spucr.cz/bpej/celostatni-databaze-bpej) from SPU
 website. Place a downloaded zip file into `db/data` directory.
 
 ```
-docker-compose up
+docker compose up
 ```
 
 ## Quick test
 
 ### Apps
 
-http://localhost/webapp/gisquick
+http://localhost/
 
-http://localhost/webapp/d-rain-point
+http://localhost/rain6h-cn-runoff/
 
 ### OWS
 
@@ -61,12 +61,6 @@ DescribeProcess:
 
 http://localhost/services/wps?service=wps&request=describeprocess&version=2.0.0&identifier=d-rain-shp
     
-Execute (POST):
-
-```
-wget -q --post-file ./ows/wps/tests/request-d-rain-shp.xml 'http://localhost/services/wps?' -O -
-```
-
 Run tests:
 
 ```sh
@@ -76,11 +70,3 @@ docker-compose exec ows_tests python3 -m pytest -v -o cache_dir=/tmp/pytest_cach
 ### Documentation
 
 http://localhost/docs
-
-### Notes
-
-#### Delete pywps zombie processes
-
-```sql
-delete from pywps_requests where status=2;
-```
