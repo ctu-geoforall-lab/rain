@@ -102,7 +102,7 @@ class SubDayPrecipProcess(Process):
           self._shapes = ['A', 'B', 'C', 'D', 'E', 'F']
           if 'shape' in input_params:
                inputs.append(LiteralInput(
-                    identifier="shape",
+                    identifier="type",
                     title="Požadované tvary průběhu intenzit 6hodinové návrhové srážky",
                     data_type='string',
                     allowed_values=self._shapes,
