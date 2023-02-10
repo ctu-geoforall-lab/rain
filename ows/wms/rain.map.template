@@ -57,7 +57,7 @@ MAP
     END # PROJECTION
     TYPE RASTER
     STATUS ON
-    DATA "/opt/mapserv/wms_data/h_24h/H_002.tif"
+    DATA "/opt/mapserv/wms_data/h_24h/H_N2.tif"
     CLASS
         NAME "H_N2_24h"
 	KEYIMAGE "legend/N2.png"
@@ -79,7 +79,7 @@ MAP
     END # PROJECTION
     TYPE RASTER
     STATUS ON
-    DATA "/opt/mapserv/wms_data/h_24h/H_005.tif"
+    DATA "/opt/mapserv/wms_data/h_24h/H_N5.tif"
     CLASS
         NAME "H_N5_24h"
 	KEYIMAGE "legend/N5.png"	 
@@ -101,7 +101,7 @@ MAP
     END # PROJECTION
     TYPE RASTER
     STATUS ON
-    DATA "/opt/mapserv/wms_data/h_24h/H_010.tif"
+    DATA "/opt/mapserv/wms_data/h_24h/H_N10.tif"
     CLASS
         NAME "H_N10_24h"
 	KEYIMAGE "legend/N10.png"    
@@ -123,7 +123,7 @@ MAP
     END # PROJECTION
     TYPE RASTER
     STATUS ON
-    DATA "/opt/mapserv/wms_data/h_24h/H_020.tif"
+    DATA "/opt/mapserv/wms_data/h_24h/H_N20.tif"
     CLASS
         NAME "H_N20_24h"
     	KEYIMAGE "legend/N20.png"
@@ -145,7 +145,7 @@ MAP
     END # PROJECTION
     TYPE RASTER
     STATUS ON
-    DATA "/opt/mapserv/wms_data/h_24h/H_050.tif"
+    DATA "/opt/mapserv/wms_data/h_24h/H_N50.tif"
     CLASS
         NAME "H_N50_24h"
     	KEYIMAGE "legend/N50.png"
@@ -167,7 +167,7 @@ MAP
     END # PROJECTION
     TYPE RASTER
     STATUS ON
-    DATA "/opt/mapserv/wms_data/h_24h/H_100.tif"
+    DATA "/opt/mapserv/wms_data/h_24h/H_N100.tif"
     CLASS
         NAME "H_N100_24h"
     	KEYIMAGE "legend/N100.png"

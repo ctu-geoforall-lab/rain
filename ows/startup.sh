@@ -5,15 +5,15 @@ envsubst '$NGINX_HTTP $NGINX_HOST $NGINX_PORT' < /opt/pywps/pywps.cfg.template >
          /opt/pywps/pywps.cfg
 # WMS
 if [ -d /opt/mapserv/wms ] ; then
-    envsubst '$NGINX_HTTP $NGINX_HOST $NGINX_PORT' < /opt/mapserv/wms/subdayprecip.map.template > \
-             /opt/mapserv/wms/subdayprecip.map
+    envsubst '$NGINX_HTTP $NGINX_HOST $NGINX_PORT' < /opt/mapserv/wms/rain.map.template > \
+             /opt/mapserv/wms/rain.map
 fi
 
 # WFS
 if [ -d /opt/mapserv/wfs ] ; then
     envsubst '$NGINX_HTTP $NGINX_HOST $NGINX_PORT $MAPSERV_USER $MAPSERV_PASSWORD $DBNAME' \
-             < /opt/mapserv/wfs/subdayprecip.map.template > \
-             /opt/mapserv/wfs/subdayprecip.map
+             < /opt/mapserv/wfs/rain.map.template > \
+             /opt/mapserv/wfs/rain.map
 fi
 
 # rain6h-cn-runoff

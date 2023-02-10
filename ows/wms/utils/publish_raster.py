@@ -23,7 +23,10 @@ def main(in_dir, out_dir, qml_dir):
         fn = os.path.splitext(os.path.basename(inf))[0]
         print(f"Processing {fn}...")
         outf = os.path.join(out_dir, fn + '.tif')
-        qmlf = os.path.join(qml_dir, fn + '.qml')
+        if fn.startswith('H_N'):
+            qmlf = os.path.join(qml_dir, fn[:3].lower() + '.qml')
+        else:
+            qmlf = os.path.join(qml_dir, fn + '.qml')
         clr, is_fp = qml2clr(qmlf)
         
         process_raster(inf, outf, '\n'.join(clr), is_fp)
@@ -32,5 +35,7 @@ if __name__ == "__main__":
     main(
         "../data/soil_texture_hsg_orig",
         "../data/soil_texture_hsg",
+        #"../data/h_24h_orig",
+        #"../data/h_24h",
         "../../../qgis/styles"
     )

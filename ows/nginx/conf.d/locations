@@ -49,7 +49,7 @@ location /services/wps {
 location /services/wms {
     fastcgi_pass                     unix:/var/run/fcgiwrap.socket;
     fastcgi_param SCRIPT_FILENAME    /usr/lib/cgi-bin/mapserv;
-    fastcgi_param MS_MAPFILE         /opt/mapserv/wms/subdayprecip.map;
+    fastcgi_param MS_MAPFILE         /opt/mapserv/wms/rain.map;
     fastcgi_param MS_ERRORFILE       /var/log/mapserv/mapserv.log;
     fastcgi_param REQUEST_METHOD     $request_method;
     fastcgi_param QUERY_STRING       $query_string;
@@ -59,7 +59,7 @@ location /services/wms {
 location /services/wfs {
     fastcgi_pass                     unix:/var/run/fcgiwrap.socket;
     fastcgi_param SCRIPT_FILENAME    /usr/lib/cgi-bin/mapserv;
-    fastcgi_param MS_MAPFILE         /opt/mapserv/wfs/subdayprecip.map;
+    fastcgi_param MS_MAPFILE         /opt/mapserv/wfs/rain.map;
     fastcgi_param MS_ERRORFILE       /var/log/mapserv/mapserv.log;
     fastcgi_param REQUEST_METHOD     $request_method;
     fastcgi_param QUERY_STRING       $query_string;
