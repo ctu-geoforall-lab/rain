@@ -195,8 +195,8 @@ class SubDayPrecipProcess(Process):
                self.return_period = [rp.data.strip() for rp in request.inputs['return_period']]
           if 'rainlength' in request.inputs.keys():
                self.rainlength = request.inputs['rainlength'][0].data
-          if 'shape' in request.inputs.keys():
-               self.shapetype = [st.data.strip() for st in request.inputs['shape']]
+          if 'type' in request.inputs.keys():
+               self.shapetype = [st.data.strip() for st in request.inputs['type']]
           if 'value' in request.inputs.keys():
                self.value = request.inputs['value'][0].data
           if 'area_size' in request.inputs.keys():

@@ -70,3 +70,11 @@ docker-compose exec ows_tests python3 -m pytest -v -o cache_dir=/tmp/pytest_cach
 ### Documentation
 
 http://localhost/docs
+
+## Notes
+
+### Remove all WPS zombie processes
+
+```sh
+docker compose exec ows_tests python remove_zombie_processes.py /data/pywps.db 0
+```

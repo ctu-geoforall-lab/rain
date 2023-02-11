@@ -17,7 +17,7 @@ class TestWPS:
     return_period=["N2","N5","N100"]
     rainlength="360"
     keycolumn="HLGP_ID"
-    shape=["E", "F"]
+    type=["E", "F"]
     value="25"
     area_size="10000"
     num_processes = 4
@@ -93,9 +93,9 @@ class TestWPS:
         fields = []
         for rp in self.return_period:
             fields.append(f"H_{rp}T{self.rainlength}_mm")
-            for st in self.shape:
+            for st in self.type:
                 fields.append(f"P_{rp}tvar{st}_%")
-            for st in self.shape:
+            for st in self.type:
                 fields.append(f"QAPI_tvar{st}")
         with open(ofile) as fd:
             data = DictReader(fd)
@@ -117,7 +117,7 @@ class TestWPS:
             'd-rain6h-timedist',
             [("input", self.input_data),
              ("keycolumn", self.keycolumn),
-            ] + self._request_multi("return_period") + self._request_multi("shape"),
+            ] + self._request_multi("return_period") + self._request_multi("type"),
             '.csv'
         )
         self._process_d_rain6h_timedist(ofile)
@@ -128,7 +128,7 @@ class TestWPS:
             [("input", self.input_data),
              ("keycolumn", self.keycolumn),
              ("area_red", "false")
-            ] + self._request_multi("return_period") + self._request_multi("shape"),
+            ] + self._request_multi("return_period") + self._request_multi("type"),
             '.csv'
         )
         self._process_d_rain6h_timedist(ofile)
@@ -137,7 +137,7 @@ class TestWPS:
         ofile = self._run_job(
             'raintotal6h-timedist',
             [("value", self.value),
-            ] + self._request_multi("shape"),
+            ] + self._request_multi("type"),
             '.csv'
         )
         with open(ofile) as fd:
@@ -145,7 +145,7 @@ class TestWPS:
             time = 5
             for row in data:
                 assert int(row["CAS_min"]) == time
-                for st in self.shape:
+                for st in self.type:
                     assert float(row[f"H_tvar{st}_mm"]) >= 0
                 time += 5
                 
