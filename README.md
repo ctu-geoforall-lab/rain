@@ -64,7 +64,7 @@ http://localhost/services/wps?service=wps&request=describeprocess&version=2.0.0&
 Run tests:
 
 ```sh
-docker-compose exec ows_tests python3 -m pytest -v -o cache_dir=/tmp/pytest_cache_dir ./tests/wps/test_wps.py
+docker compose exec ows_tests python3 -m pytest -v -o cache_dir=/tmp/pytest_cache_dir ./tests/wps/test_wps.py
 ```
 
 ### Documentation
