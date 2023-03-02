@@ -9,7 +9,7 @@ from osgeo import ogr, gdal
 
 class TestWPS:
     url='https://rain1.fsv.cvut.cz/services/wps'
-    # url='http://localhost/services/wps'
+    # url='http://localhost:8084/services/wps'
     input_data=ComplexDataInput("http://rain.fsv.cvut.cz/geodata/test.gml")
     dump_ofile=False
     
@@ -208,13 +208,34 @@ class TestWPS:
              ("area", "101")] + self._request_multi("return_period"),
             exception="Process error: area: outside of valid interval 0.1-100"
         )
-                
-    def test_009_smoderp2d_capabilities(self):
+
+    def test_009_rain6h_cn_runoff0(self):
+        ofile = self._run_job(
+            'rain6h-cn-runoff',
+            [("obs_x", self.obs_x),
+             ("obs_y", self.obs_y),
+             ("cn2", "20"),
+             ("lambda", "0.3"),
+             ("area", self.area)] + self._request_multi("return_period"),
+            '.json'
+        )
+
+        with open(ofile, 'r') as fp:
+            data = json.load(fp)
+            i = 0
+            for rp in self.return_period:
+                record = data[i]
+                assert record[f"VCN2_{rp}_m3"] == 0
+                assert record[f"VCN3_{rp}_m3"] == 0
+                assert record[f"V_{rp}_m3"] == 0
+                i += 1
+
+    def test_010_smoderp2d_capabilities(self):
         processes = self._wps('https://rain1.fsv.cvut.cz:4444/services/wps').processes
         assert len(processes) == 2
         assert any(process.identifier.startswith('smoderp') for process in processes)
 
-    def test_010_profile1d(self):
+    def test_011_profile1d(self):
         ofile = self._run_job_request(        
             Path(__file__).parent / 'request-profile1d.xml',
             '.csv',
