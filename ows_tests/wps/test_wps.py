@@ -8,10 +8,10 @@ from owslib.wps import WebProcessingService, monitorExecution, ComplexDataInput
 from osgeo import ogr, gdal
 
 class TestWPS:
-    url='https://rain1.fsv.cvut.cz/services/wps'
-    # url='http://localhost:8084/services/wps'
+    # url='https://rain1.fsv.cvut.cz/services/wps'
+    url='http://localhost/services/wps'
     input_data=ComplexDataInput("http://rain.fsv.cvut.cz/geodata/test.gml")
-    dump_ofile=False
+    dump_ofile=True
     
     key="HLGP_ID"
     return_period=["N2","N5","N100"]
@@ -48,19 +48,22 @@ class TestWPS:
         if not self.dump_ofile or Path(filename).suffix == '.zip':
             return
         with open(filename, 'r') as fd:
-            print(fd.read())
+            print(''.join(fd.readlines()[:10]))
 
     def _run_job(self, process, inputs, ext=None, exception=None):
         execution = self._wps().execute(process, inputs)
         monitorExecution(execution)
         if exception is None:
             assert execution.getStatus() == "ProcessSucceeded"
+            ofiles = []
             if ext:
-                ofile = self._get_filename() + ext
-                execution.getOutput(ofile)
-                self._dump_ofile(ofile)
+                for output in execution.processOutputs:
+                    ofile = self._get_filename() + ext
+                    execution.getOutput(ofile, output.identifier)
+                    self._dump_ofile(ofile)
+                    ofiles.append(ofile)
 
-                return ofile
+                return ofiles
         else:
             assert len(execution.errors) > 0
             assert execution.getStatus() == "Exception"
@@ -77,11 +80,14 @@ class TestWPS:
 
         if exception is None:
             assert execution.getStatus() == "ProcessSucceeded"
-            ofile = self._get_filename() + ext
-            execution.getOutput(ofile)
-            self._dump_ofile(ofile)
+            ofiles = []
+            for output in execution.processOutputs:
+                ofile = self._get_filename() + ext
+                execution.getOutput(ofile, output.identifier)
+                self._dump_ofile(ofile)
+                ofiles.append(ofile)
 
-            return ofile
+            return ofiles
         else:
             assert len(execution.errors) > 0
             assert execution.getStatus() == "Exception"
@@ -119,7 +125,7 @@ class TestWPS:
              ("keycolumn", self.keycolumn),
             ] + self._request_multi("return_period") + self._request_multi("type"),
             '.csv'
-        )
+        )[0]
         self._process_d_rain6h_timedist(ofile)
 
     def test_003_d_rain6h_timedist_reduction_disabled(self):
@@ -130,7 +136,7 @@ class TestWPS:
              ("area_red", "false")
             ] + self._request_multi("return_period") + self._request_multi("type"),
             '.csv'
-        )
+        )[0]
         self._process_d_rain6h_timedist(ofile)
 
     def test_004_raintotal6h_timedist(self):
@@ -139,7 +145,7 @@ class TestWPS:
             [("value", self.value),
             ] + self._request_multi("type"),
             '.csv'
-        )
+        )[0]
         with open(ofile) as fd:
             data = DictReader(fd)
             time = 5
@@ -153,7 +159,7 @@ class TestWPS:
         ofile = self._run_job_request(
             Path(__file__).parent / 'request-soil-texture-hsg.xml',
             '.zip'
-        )
+        )[0]
 
         geo_transform = (-717742.5, 20.0, 0.0, -1083242.5, 0.0, -20.0)
         for name in ('sand', 'clay', 'usda-texture-class', 'silt'):
@@ -178,7 +184,7 @@ class TestWPS:
              ("lambda", self.lambda_),
              ("area", self.area)] + self._request_multi("return_period"),
             '.json'
-        )
+        )[0]
 
         with open(ofile, 'r') as fp:
             data = json.load(fp)
@@ -218,7 +224,7 @@ class TestWPS:
              ("lambda", "0.3"),
              ("area", self.area)] + self._request_multi("return_period"),
             '.json'
-        )
+        )[0]
 
         with open(ofile, 'r') as fp:
             data = json.load(fp)
@@ -240,7 +246,7 @@ class TestWPS:
             Path(__file__).parent / 'request-profile1d.xml',
             '.csv',
             'https://rain1.fsv.cvut.cz:4444/services/wps'
-        )
+        )[0]
 
         with open(ofile) as fd:
             data = DictReader(fd)

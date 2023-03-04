@@ -110,7 +110,7 @@ class DRain6hTimedist(DRain6hTimedistBase, SubDayPrecipProcess):
           fd.write('{key}{sep}CAS_min'.format(key=self.keycolumn, sep=self.sep))
           for rp in self.return_period:
                for stype in self.shapetype:
-                    fd.write('{sep}H_{rast}typ{stype}_mm'.format(
+                    fd.write('{sep}H_{rast}tvar{stype}_mm'.format(
                               sep=self.sep, stype=stype, rast=rp)
                     )
           fd.write(self.nl)
