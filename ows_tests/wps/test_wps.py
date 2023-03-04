@@ -8,8 +8,8 @@ from owslib.wps import WebProcessingService, monitorExecution, ComplexDataInput
 from osgeo import ogr, gdal
 
 class TestWPS:
-    # url='https://rain1.fsv.cvut.cz/services/wps'
-    url='http://localhost/services/wps'
+    url='https://rain1.fsv.cvut.cz/services/wps'
+    # url='http://localhost/services/wps'
     input_data=ComplexDataInput("http://rain.fsv.cvut.cz/geodata/test.gml")
     dump_ofile=True
     
@@ -94,50 +94,63 @@ class TestWPS:
             assert str(execution.errors[0].text).startswith(exception)
 
         return None
-    
-    def _process_d_rain6h_timedist(self, ofile):
+
+    def _process_d_rain6h_timedist_fields(self, idx):
         fields = []
         for rp in self.return_period:
-            fields.append(f"H_{rp}T{self.rainlength}_mm")
+            if idx == 0:
+                fields.append(f"H_{rp}T{self.rainlength}_mm")
             for st in self.type:
-                fields.append(f"P_{rp}tvar{st}_%")
-            for st in self.type:
-                fields.append(f"QAPI_tvar{st}")
-        with open(ofile) as fd:
-            data = DictReader(fd)
-            nlines = 0
-            for row in data:
-                for f in fields:
-                    value = float(row[f])
-                    assert value >= 0
-                    if f.startswith('P'):
-                        assert value >= 0 and value <= 100
-                    if f.startswith('QAPI'):
-                        assert value >= 0 and value <= 1
-                nlines += 1
+                if idx == 0:
+                    fields.append(f"P_{rp}tvar{st}_%")
+                else:
+                    fields.append(f"H_{rp}tvar{st}_mm")
+            if idx == 0:
+                for st in self.type:
+                    fields.append(f"QAPI_tvar{st}")
 
-            assert nlines == 15
+        return fields
+
+    def _process_d_rain6h_timedist(self, ofiles):
+        for idx in range(len(ofiles)):
+            fields = self._process_d_rain6h_timedist_fields(idx)
+            with open(ofiles[idx]) as fd:
+                data = DictReader(fd)
+                nlines = 0
+                for row in data:
+                    for f in fields:
+                        value = float(row[f])
+                        assert value >= 0
+                        if f.startswith('P'):
+                            assert value >= 0 and value <= 100
+                        if f.startswith('QAPI'):
+                            assert value >= 0 and value <= 1
+                    nlines += 1
+                if idx == 0:
+                    assert nlines == 15
+                else:
+                    assert nlines == 15 * (360 / 5)
 
     def test_002_d_rain6h_timedist_reduction(self):
-        ofile = self._run_job(
+        ofiles = self._run_job(
             'd-rain6h-timedist',
             [("input", self.input_data),
              ("keycolumn", self.keycolumn),
             ] + self._request_multi("return_period") + self._request_multi("type"),
             '.csv'
-        )[0]
-        self._process_d_rain6h_timedist(ofile)
+        )
+        self._process_d_rain6h_timedist(ofiles)
 
     def test_003_d_rain6h_timedist_reduction_disabled(self):
-        ofile = self._run_job(
+        ofiles = self._run_job(
             'd-rain6h-timedist',
             [("input", self.input_data),
              ("keycolumn", self.keycolumn),
              ("area_red", "false")
             ] + self._request_multi("return_period") + self._request_multi("type"),
             '.csv'
-        )[0]
-        self._process_d_rain6h_timedist(ofile)
+        )
+        self._process_d_rain6h_timedist(ofiles)
 
     def test_004_raintotal6h_timedist(self):
         ofile = self._run_job(
