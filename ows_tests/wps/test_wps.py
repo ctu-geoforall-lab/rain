@@ -129,7 +129,7 @@ class TestWPS:
                 if idx == 0:
                     assert nlines == 15
                 else:
-                    assert nlines == 15 * (360 / 5)
+                    assert nlines == 15 * ((360 / 5) + 1)
 
     def test_002_d_rain6h_timedist_reduction(self):
         ofiles = self._run_job(
