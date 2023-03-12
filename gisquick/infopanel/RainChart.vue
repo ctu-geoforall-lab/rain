@@ -320,15 +320,17 @@ export default {
     download (e) {
       const types = Object.keys(this.bands)
       const header = [
+        'HPGP_ID',
         'CAS_min',
         ...types.map(t => `H_N${this.hn}tvar${t}_mm`),
         ...types.map(t => `P_N${this.hn}tvar${t}_%`),
+        `H_N${this.hn}_mm`,
         ...types.map(t => `CN2 ${t}`),
         ...types.map(t => `CN3 ${t}`)
       ]
       const csv = [header.join(',')]
       const firstLine = [
-        0, '', '', '', '', '', '',
+        this.properties['HLGP_CHAR'], 0, '0.000', '0.000', '0.000', '0.000', '0.000', '0.000', this.properties[`H_N${this.hn}_mm`].toFixed(3),
         ...types.map(type => this.properties[`${type}_00${this.hn}`]),
         ...this.cnData.CN2.map(i => i.value),
         ...this.cnData.CN3.map(i => i.value)
@@ -336,7 +338,7 @@ export default {
       csv.push(firstLine.join(','))
       const times = this.bandsData[types[0]].map(i => i.time)
       times.forEach((time, index) => {
-        const data = [time, ...types.map(type => this.bandsData[type][index].value.toFixed(3))]
+        const data = [this.properties['HLGP_CHAR'], time, ...types.map(type => this.bandsData[type][index].value.toFixed(3))]
         csv.push(data.join(',') + ',,,,,,')
       })
       const blob = new Blob([csv.join('\n')], { type: 'text/plain;charset=utf-8' })
