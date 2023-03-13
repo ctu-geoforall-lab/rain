@@ -150,7 +150,7 @@ class DRain6hTimedist(DRain6hTimedistBase, SubDayPrecipProcess):
                     fd.write(f'{self.sep}P_{rp}tvar{stype}_%')
           # QAPI columns
           for stype in self.shapetype:
-               fd.write(f'{self.sep}QAPI_tvar{stype}')
+               fd.write(f'{self.sep}QAPItvar{stype}')
           fd.write(self.nl)
 
           # compute timeshape percentage
