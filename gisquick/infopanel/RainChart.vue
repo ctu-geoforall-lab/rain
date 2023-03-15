@@ -265,10 +265,8 @@ export default {
       }
     },
     barChart () {
-      // const prefix = `p_n${this.hn}tvar`
-      const suffix = `_00${this.hn}`
       return Object.keys(this.bands).map(type => {
-        const attr = type + suffix
+        const attr = `${type}_${this.hn.padStart(3, '0')}`
         const value = this.properties[attr]
         return {
           value,
