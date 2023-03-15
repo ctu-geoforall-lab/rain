@@ -331,15 +331,16 @@ export default {
         'HPGP_ID',
         'CAS_min',
         ...types.map(t => `H_N${this.hn}tvar${t}_mm`),
+        `H_N${this.hn}T360_mm`,
         ...types.map(t => `P_N${this.hn}tvar${t}_%`),
-        `H_N${this.hn}_mm`,
-        ...types.map(t => `CN2 ${t}`),
-        ...types.map(t => `CN3 ${t}`)
+        ...types.map(t => `CN2_tvar${t}`),
+        ...types.map(t => `CN3_tvar${t}`)
       ]
       const csv = [header.join(',')]
       const firstLine = [
-        this.properties['HLGP_CHAR'], 0, '0.000', '0.000', '0.000', '0.000', '0.000', '0.000', this.properties[`H_N${this.hn}_mm`].toFixed(3),
-        ...types.map(type => this.properties[`${type}_00${this.hn}`]),
+        this.properties['HLGP_CHAR'], 0, '0.000', '0.000', '0.000', '0.000', '0.000', '0.000',
+        this.properties[`H_N${this.hn}T360`]?.toFixed(3),
+        ...types.map(type => this.properties[`${type}_${this.hn.padStart(3, '0')}`]?.toFixed(3)),
         ...this.cnData.CN2.map(i => i.value),
         ...this.cnData.CN3.map(i => i.value)
       ]
