@@ -49,8 +49,12 @@ rain1.fsv.cvut.cz {
     }
   }
 
-  rewrite / /map/
-
+  # map
+  @mainapp {
+    path / /index.html /favicon.ico /manifest.json /service-worker.js /workbox* /map/*
+  }
+  root @mainapp /var/www/html/map/
+  
   # client side routing
   @user {
     path /user /user/*
