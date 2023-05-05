@@ -120,6 +120,9 @@ class DRain6hTimedist(DRain6hTimedistBase, SubDayPrecipProcess):
           for fid, attrib in data['values'].items():
                LOGGER.debug('FID={}: {}'.format(attrib[0], attrib[1:]))
                valid = True if float(attrib[1]) > 0 else False
+               fd.write('{fid}{sep}0{sep}{zeros}{nl}'.format(
+                    fid=attrib[0], sep=self.sep, nl=self.nl,
+                    zeros=self.sep.join(['0.000'] * len(self.return_period) * len(self.shapetype))))
                for s in shapes:
                     time = s[0]
                     timeshapes = s[1:]
@@ -133,9 +136,6 @@ class DRain6hTimedist(DRain6hTimedistBase, SubDayPrecipProcess):
                                    sep=self.sep,
                                    val=val_type
                               ))
-                    fd.write('{seps}'.format(
-                         seps=self.sep * len(attrib[1:] * len(self.shapetype)))
-                    )
                     fd.write(self.nl)
 
      def export_probabilities(self, fd, data):

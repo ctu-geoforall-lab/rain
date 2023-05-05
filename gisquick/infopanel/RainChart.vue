@@ -64,7 +64,7 @@
       </template>
     </plot-chart>
     <div class="subtitle">Zastoupení tvarů hyetogramu</div>
-    <div class="bar-chart">
+    <div class="bar-chart m-2">
       <div
         v-for="(item, i) in barChart"
         :key="i"
@@ -82,7 +82,7 @@
         <span
           v-for="(item, i) in data"
           :key="`${label}_${i}`"
-          v-text="item.value"
+          v-text="formats.num2(item.value)"
           :style="item.style"
         />
       </template>
@@ -155,12 +155,22 @@ export default {
         minimumFractionDigits: 0,
         maximumFractionDigits: 1
       })
+      const num2 = new Intl.NumberFormat('cs', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 2
+      })
+      const num3f = new Intl.NumberFormat('cs', {
+        minimumFractionDigits: 3,
+        maximumFractionDigits: 3
+      })
       return {
-        num1: v => v && num1.format(v)
+        num1: v => v && num1.format(v),
+        num2: v => v && num2.format(v),
+        num3f: v => v && num3f.format(v)
       }
     },
     hn () {
-      // Navrhove_srazky-2_roky
+      // Navrhove_srazky-2_roky, Zastoupeni_tvaru_A-2_roky
       return this.layer.name.split('-')[1]?.split('_')[0]
     },
     rainfallAttribute () {
@@ -172,8 +182,8 @@ export default {
     attributes () {
       return {
         id: this.properties['HLGP_CHAR'],
-        area: this.properties['PLOCHA'].toFixed(2),
-        rainfall: this.properties[this.rainfallAttribute]?.toFixed(1)
+        area: this.formats.num2(this.properties['PLOCHA']),
+        rainfall: this.formats.num1(this.properties[this.rainfallAttribute])
       }
     },
     bands () {
@@ -255,10 +265,8 @@ export default {
       }
     },
     barChart () {
-      // const prefix = `p_n${this.hn}tvar`
-      const suffix = `_00${this.hn}`
       return Object.keys(this.bands).map(type => {
-        const attr = type + suffix
+        const attr = `${type}_${this.hn.padStart(3, '0')}`
         const value = this.properties[attr]
         return {
           value,
@@ -313,30 +321,33 @@ export default {
           },
           align: time < 300 ? 'right' : 'left',
           time,
-          data: mapValues(this.bandsData, dataset => dataset.find(d => d.time === time)?.value.toFixed(3))
+          data: mapValues(this.bandsData, dataset => this.formats.num3f(dataset.find(d => d.time === time)?.value))
         }
       }
     }, 50),
     download (e) {
       const types = Object.keys(this.bands)
       const header = [
+        'HPGP_ID',
         'CAS_min',
         ...types.map(t => `H_N${this.hn}tvar${t}_mm`),
+        `H_N${this.hn}T360_mm`,
         ...types.map(t => `P_N${this.hn}tvar${t}_%`),
-        ...types.map(t => `CN2 ${t}`),
-        ...types.map(t => `CN3 ${t}`)
+        ...types.map(t => `CN2_tvar${t}`),
+        ...types.map(t => `CN3_tvar${t}`)
       ]
       const csv = [header.join(',')]
       const firstLine = [
-        0, '', '', '', '', '', '',
-        ...types.map(type => this.properties[`${type}_00${this.hn}`]),
+        this.properties['HLGP_CHAR'], 0, '0.000', '0.000', '0.000', '0.000', '0.000', '0.000',
+        this.properties[`H_N${this.hn}T360`]?.toFixed(3),
+        ...types.map(type => this.properties[`${type}_${this.hn.padStart(3, '0')}`]?.toFixed(3)),
         ...this.cnData.CN2.map(i => i.value),
         ...this.cnData.CN3.map(i => i.value)
       ]
       csv.push(firstLine.join(','))
       const times = this.bandsData[types[0]].map(i => i.time)
       times.forEach((time, index) => {
-        const data = [time, ...types.map(type => this.bandsData[type][index].value.toFixed(3))]
+        const data = [this.properties['HLGP_CHAR'], time, ...types.map(type => this.bandsData[type][index].value.toFixed(3))]
         csv.push(data.join(',') + ',,,,,,')
       })
       const blob = new Blob([csv.join('\n')], { type: 'text/plain;charset=utf-8' })
@@ -455,7 +466,6 @@ export default {
     border-width: 0 1px;
     height: 20px;
     font-size: 12px;
-    margin: 8px;
     .item {
       background-color: var(--color);
       text-align: center;
