@@ -6,6 +6,15 @@ def remove_zombie_processes(dbname, days=1):
         cur = con.cursor()
         try:
             cur.execute(
+            "SELECT * from pywps_requests where status=2"
+            )
+            print("Number of zombie processes: {}".format(len(cur.fetchall())))
+            cur.execute(
+            "SELECT * from pywps_requests where status=2 and time_start > DATE('now','-{0} day')".format(
+                days
+            ))
+            print("Number of zombie processes to be deleted: {}".format(len(cur.fetchall())))
+            cur.execute(
             "DELETE from pywps_requests where status=2 and time_start > DATE('now','-{0} day')".format(
                 days
             ))
