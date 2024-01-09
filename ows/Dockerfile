@@ -24,6 +24,7 @@ RUN grass --tmp-location EPSG:5514 --exec g.extension -s r.subdayprecip.design
 COPY wps/pywps/patches/ /tmp/
 RUN patch -p0 < /tmp/Service.diff
 RUN patch -p0 < /tmp/Process.diff
+RUN patch -p0 < /tmp/file.diff
 
 # set up MapServer
 RUN mkdir -p /opt/mapserv/
