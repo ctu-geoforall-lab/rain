@@ -11,7 +11,8 @@ class Rain6hCnRunoff(SubDayPrecipProcess):
         SubDayPrecipProcess.__init__(
             self,
             identifier="rain6h-cn-runoff",
-            title="Nástroj vyčíslí objem přímého odtoku vážený podle qAPI a zastoupení tvarů pro lokalitu zadanou uživatelem v podobě bodu.",
+            # title="Nástroj vyčíslí objem přímého odtoku vážený podle qAPI a zastoupení tvarů pro lokalitu zadanou uživatelem v podobě bodu.",
+            title="Nastroj vycisli objem primeho odtoku vazeny podle qAPI a zastoupeni tvaru pro lokalitu zadanou uzivatelem v podobe bodu.",
             abstract="",
             input_params=['obs', 'return_period', 'area', 'cn2', 'lambda'],
             output_params=['output_volume'],

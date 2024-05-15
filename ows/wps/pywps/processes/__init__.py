@@ -38,7 +38,8 @@ class SubDayPrecipProcess(Process):
           if 'input' in input_params:
                inputs.append(ComplexInput(
                     identifier="input",
-                    title="Vstupní (bodová či polygonová) vektorová data (mohou být zkoprimována zip/gzip, velikost souboru je omezen na 200MB)",
+                    # title="Vstupní (bodová či polygonová) vektorová data (mohou být zkoprimována zip/gzip, velikost souboru je omezen na 200MB)",
+                    title="Vstupni (bodova ci polygonova) vektorova data (mohou byt zkoprimovana zip/gzip, velikost souboru je omezen na 200MB)",
                     supported_formats=[Format('text/xml'), # required by QGIS WPS client
                                        Format('GML'),
                                        Format('application/zip; charset=binary')])
@@ -47,26 +48,30 @@ class SubDayPrecipProcess(Process):
           if 'obs' in input_params:
                inputs.append(LiteralInput(
                     identifier="obs_x",
-                    title="Zeměpisná délka zájmového bodu",
+                    # title="Zeměpisná délka zájmového bodu",
+                    title="Zemepisna delka zajmoveho bodu",
                     data_type='float')
                )
                inputs.append(LiteralInput(
                     identifier="obs_y",
-                    title="Zeměpisná šířka zájmového bodu",
+                    # title="Zeměpisná šířka zájmového bodu",
+                    title="Zemepisna sirka zajmoveho bodu",
                     data_type='float')
                )
 
           if 'value' in input_params:
                inputs.append(LiteralInput(
                     identifier="value",
-                    title="Hodnota návrhového úhrnu 6hodinové srážky v mm",
+                    # title="Hodnota návrhového úhrnu 6hodinové srážky v mm",
+                    title="Hodnota navrhoveho uhrnu 6hodinove srazky v mm",
                     data_type='float')
                )
 
           if 'keycolumn' in input_params:
                inputs.append(LiteralInput(
                     identifier="keycolumn",
-                    title="Název vybraného atributu vstupních dat použitého jako klíčový sloupec. Tento identifikátor lze posléze použít pro připojení textového výstupu k atributovým datům vstupních dat",
+                    # title="Název vybraného atributu vstupních dat použitého jako klíčový sloupec. Tento identifikátor lze posléze použít pro připojení textového výstupu k atributovým datům vstupních dat",
+                    title="Nazev vybraneho atributu vstupnich dat pouziteho jako klicovy sloupec. Tento identifikator lze posleze pouzit pro pripojeni textoveho vystupu k atributovym datum vstupnich dat",
                     data_type='string')
                )
           
@@ -75,7 +80,8 @@ class SubDayPrecipProcess(Process):
 
                inputs.append(LiteralInput(
                     identifier="return_period",
-                    title="Požadované doby opakování",
+                    # title="Požadované doby opakování",
+                    title="Pozadovane doby opakovani",
                     data_type='string',
                     allowed_values=return_periods,
                     max_occurs=len(return_periods),
@@ -103,7 +109,8 @@ class SubDayPrecipProcess(Process):
           if 'shape' in input_params:
                inputs.append(LiteralInput(
                     identifier="type",
-                    title="Požadované tvary průběhu intenzit 6hodinové návrhové srážky",
+                    # title="Požadované tvary průběhu intenzit 6hodinové návrhové srážky",
+                    title="Pozadovane tvary prubehu intenzit 6hodinove navrhove srazky",
                     data_type='string',
                     allowed_values=self._shapes,
                     max_occurs=len(self._shapes),
@@ -114,7 +121,8 @@ class SubDayPrecipProcess(Process):
           if 'area_red' in input_params:
                inputs.append(LiteralInput(
                     identifier="area_red",
-                    title="Logický přepínač pro kontrolu plochy vstupních prvků a provádění redukce úhrnů",
+                    # title="Logický přepínač pro kontrolu plochy vstupních prvků a provádění redukce úhrnů",
+                    title="Logicky prepinac pro kontrolu plochy vstupnich prvku a provadeni redukce uhrnu",
                     data_type='boolean',
                     default='true',
                     min_occurs=0)
@@ -130,7 +138,8 @@ class SubDayPrecipProcess(Process):
           if 'lambda' in input_params:
                inputs.append(LiteralInput(
                     identifier="lambda",
-                    title="Koeficient počáteční ztráty (0.1-0.3)",
+                    # title="Koeficient počáteční ztráty (0.1-0.3)",
+                    title="Koeficient pocatecni ztraty (0.1-0.3)",
                     data_type='float',
                     default="0.2")
                )
@@ -138,7 +147,8 @@ class SubDayPrecipProcess(Process):
           if 'output_volume' in output_params:
                outputs.append(ComplexOutput(
                     identifier="output", 
-                    title="Vyčíslené hodnoty objemu ve formátu JSON",
+                    # title="Vyčíslené hodnoty objemu ve formátu JSON",
+                    title="Vycislene hodnoty objemu ve formatu JSON",
                     supported_formats=[Format('application/json')],
                     as_reference=True)
                )
@@ -146,7 +156,8 @@ class SubDayPrecipProcess(Process):
           if 'output_probabilities' in output_params:
                outputs.append(ComplexOutput(
                     identifier="output",
-                    title="Vyčíslené hodnoty pravděpodobnosti tvaru pětiminutových intenzit návrhových srážek pro vstupní vektorové prvky ve formátu CSV",
+                    # title="Vyčíslené hodnoty pravděpodobnosti tvaru pětiminutových intenzit návrhových srážek pro vstupní vektorové prvky ve formátu CSV",
+                    title="Vycislene hodnoty pravdepodobnosti tvaru petiminutovych intenzit navrhovych srazek pro vstupni vektorove prvky ve formatu CSV",
                     supported_formats=[Format('text/csv')],
                     as_reference = True)
                )
@@ -154,7 +165,8 @@ class SubDayPrecipProcess(Process):
           if 'output_shapes' in output_params:
                outputs.append(ComplexOutput(
                     identifier="output_shapes" if identifier == "d-rain6h-timedist" else "output",
-                    title="Vyčíslené průběhy pětiminutových intenzit návrhových srážek pro vstupní vektorové prvky ve formátu CSV",
+                    # title="Vyčíslené průběhy pětiminutových intenzit návrhových srážek pro vstupní vektorové prvky ve formátu CSV",
+                    title="Vycislene prubehy petiminutovych intenzit navrhovych srazek pro vstupni vektorove prvky ve formatu CSV",
                     supported_formats=[Format('text/csv')],
                     as_reference = True)
                )
