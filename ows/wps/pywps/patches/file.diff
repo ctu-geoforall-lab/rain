@@ -1,5 +1,5 @@
 --- /var/log/pywps/file.py	2024-01-09 17:52:15.825577383 +0000
-+++ /usr/local/lib/python3.6/dist-packages/pywps/inout/storage/file.py	2024-01-09 17:52:04.325770609 +0000
++++ /usr/local/lib/python3.12/dist-packages/pywps/inout/storage/file.py	2024-01-09 17:52:04.325770609 +0000
 @@ -122,7 +122,7 @@
  
          full_output_name = os.path.join(self.target, destination)

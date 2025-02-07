@@ -1,5 +1,5 @@
---- /usr/local/lib/python3.6/dist-packages/pywps/app/Service.py 	2021-01-13 10:42:04.722309347 +0000
-+++ /usr/local/lib/python3.6/dist-packages/pywps/app/Service.py.new	2021-01-13 10:36:30.971511495 +0000
+--- /usr/local/lib/python3.12/dist-packages/pywps/app/Service.py 	2021-01-13 10:42:04.722309347 +0000
++++ /usr/local/lib/python3.12/dist-packages/pywps/app/Service.py.new	2021-01-13 10:36:30.971511495 +0000
 @@ -246,22 +246,27 @@
  
              os.environ['GISBASE'] = gisbase

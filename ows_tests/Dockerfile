@@ -1,11 +1,10 @@
-FROM python:3.10-slim-bullseye
+FROM python:3.12-slim-bookworm
 
 # install system libraries
 RUN apt-get update
-RUN apt-get install -y libgdal-dev python3-pip git wget
+RUN apt-get install -y libgdal-dev git wget g++
 
 COPY requirements.txt /tmp/requirements.txt
-RUN pip3 install -U setuptools==57.5.0 # error in GDAL setup command: use_2to3 is invalid.
 RUN python3 -m pip install -r /tmp/requirements.txt
 
 WORKDIR /opt
