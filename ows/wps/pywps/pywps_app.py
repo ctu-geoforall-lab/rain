@@ -6,7 +6,7 @@ import os
 import sys
 from pywps.app.Service import Service
 
-os.environ['GISBASE'] = '/usr/lib/grass78' 
+os.environ['GISBASE'] = '/usr/lib/grass84'
 sys.path.append(os.path.join(os.environ["GISBASE"], "etc", "python"))
 
 from processes.d_rain6h_timedist import DRain6hTimedist

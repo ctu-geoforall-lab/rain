@@ -1,5 +1,5 @@
 --- /var/log/pywps/Process.py	2021-01-13 10:43:04.178810906 +0000
-+++ /usr/local/lib/python3.6/dist-packages/pywps/app/Process.py	2021-01-13 17:55:15.199894101 +0000
++++ /usr/local/lib/python3.12/dist-packages/pywps/app/Process.py	2021-01-13 17:55:15.199894101 +0000
 @@ -417,22 +417,23 @@
  
              # create temporary mapset within existing location
@@ -13,8 +13,8 @@
  
 -                grass.run_command('g.gisenv', set="GISDBASE={}".format(dbase))
 -                grass.run_command('g.gisenv', set="LOCATION_NAME=%s" % location)
-+                gsetup.init(os.environ['GISBASE'], dbase,
-+                            location, 'PERMANENT')
++                gsetup.init(dbase, location, 'PERMANENT',
++                            grass_path=os.environ['GISBASE'])
  
                  while os.path.isdir(os.path.join(dbase, location, mapset_name)):
                      mapset_name = 'pywps_ms_{}'.format(

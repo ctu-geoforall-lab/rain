@@ -1,5 +1,5 @@
 # FROM mundialis/grass-py3-pdal:stable-ubuntu
-FROM ubuntu:18.04
+FROM ubuntu:24.04
 
 # install requirements
 RUN apt-get update && apt-get install --yes software-properties-common gettext-base
@@ -10,7 +10,7 @@ RUN apt-get install --yes grass-core grass-doc grass-dev
 RUN apt-get install --yes cgi-mapserver fcgiwrap
 
 COPY requirements.txt /tmp/requirements.txt
-RUN python3 -m pip install -r /tmp/requirements.txt
+RUN python3 -m pip install -r /tmp/requirements.txt --break-system-packages
 
 # set up pyWPS
 RUN mkdir -p /var/www/wps/output
