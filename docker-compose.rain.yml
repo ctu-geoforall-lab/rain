@@ -42,6 +42,7 @@ services:
     volumes:
       - ./ows_tests/wps:/opt/tests/wps
       - ./ows_tests/wms:/opt/tests/wms
+      - ./ows_tests/wfs:/opt/tests/wfs
       - ./ows_tests/log:/var/log/ows_tests
       - ./ows/wps/log:/data
     environment:
