@@ -12,7 +12,7 @@ while true; do
     echo "============================= WPS TESTS ==============================" > $LOGFILE
     python3 -m pytest -v -o cache_dir=/tmp/pytest_cache_dir ./tests/wps/test_wps.py >> $LOGFILE
     RETCODE=$((RETCODE+$?))
-    echo "============================= WMS TESTS ==============================" > $LOGFILE
+    echo "============================= WMS TESTS ==============================" >> $LOGFILE
     python3 -m pytest -v -o cache_dir=/tmp/pytest_cache_dir ./tests/wms/test_wms.py >> $LOGFILE
     RETCODE=$((RETCODE+$?))
     echo "============================= WFS TESTS ==============================" > $LOGFILE
