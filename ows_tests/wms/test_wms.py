@@ -26,6 +26,7 @@ class TestWMS:
         assert wms.contents[self.wms_layer].title == '2-leté maximální denní úhrny'
         
     def test_002_getmap(self):
+        """Test GetMap request."""
         img = self._wms().getmap(
             layers=[self.wms_layer],
             size=self.wms_size,
