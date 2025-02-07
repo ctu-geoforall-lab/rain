@@ -3,8 +3,8 @@ from owslib.wms import WebMapService
 from PIL import Image
         
 class TestWMS:
-    # url='https://rain1.fsv.cvut.cz/services/wps'
-    url='http://localhost/services/wms'
+    url='https://rain1.fsv.cvut.cz/services/wms'
+    # url='http://localhost/services/wms'
 
     wms_version = '1.3.0'
     wms_layer = 'H_N2_24h'
@@ -24,7 +24,6 @@ class TestWMS:
         assert wms.identification.version == self.wms_version
         assert len(list(wms.contents)) == 12
         assert wms.contents[self.wms_layer].title == '2-leté maximální denní úhrny'
-        print(wms.contents[self.wms_layer].boundingBox)
         
     def test_002_getmap(self):
         img = self._wms().getmap(
