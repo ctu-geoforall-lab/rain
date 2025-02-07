@@ -12,6 +12,9 @@ while true; do
     echo "============================= WPS TESTS ==============================" > $LOGFILE
     python3 -m pytest -v -o cache_dir=/tmp/pytest_cache_dir ./tests/wps/test_wps.py >> $LOGFILE
     RETCODE=$((RETCODE+$?))
+    echo "============================= WMS TESTS ==============================" > $LOGFILE
+    python3 -m pytest -v -o cache_dir=/tmp/pytest_cache_dir ./tests/wms/test_wms.py >> $LOGFILE
+    RETCODE=$((RETCODE+$?))
     python notifier.py $RETCODE $LOGFILE
     echo "Sleeping for ${OWS_TEST_REPEAT}hrs..."
     sleep $(($OWS_TEST_REPEAT * 60 * 60))
