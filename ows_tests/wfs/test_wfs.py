@@ -33,3 +33,4 @@ class TestWFS:
         assert ds is not None
         assert ds.GetLayerCount() == 1
         assert ds.GetLayer().GetFeatureCount() > 0
+        ds = None
