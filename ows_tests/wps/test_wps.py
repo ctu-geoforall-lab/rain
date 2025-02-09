@@ -8,8 +8,8 @@ from owslib.wps import WebProcessingService, monitorExecution, ComplexDataInput
 from osgeo import ogr, gdal
 
 class TestWPS:
-    url='https://rain1.fsv.cvut.cz/services/wps'
-    # url='http://localhost/services/wps'
+    # url='https://rain1.fsv.cvut.cz/services/wps'
+    url='http://localhost/services/wps'
     input_data=ComplexDataInput("http://rain.fsv.cvut.cz/geodata/test.gml")
     dump_ofile=True
     
@@ -249,12 +249,25 @@ class TestWPS:
                 assert record[f"V_{rp}_m3"] == 0
                 i += 1
 
-    def test_010_smoderp2d_capabilities(self):
+    def test_010_d_rain_point(self):
+        ofile = self._run_job(
+            'd-rain-point',
+            [("obs_x", "15.11784"),
+             ("obs_y", "49.88598"),
+             ("rainlength", self.rainlength)
+            ] + self._request_multi("return_period"),
+            '.txt'
+        )[0]
+
+        with open(ofile) as fd:
+            assert fd.read() == "30.2,44.2,89.0"
+
+    def test_011_smoderp2d_capabilities(self):
         processes = self._wps('https://rain1.fsv.cvut.cz:4444/services/wps').processes
         assert len(processes) == 2
         assert any(process.identifier.startswith('smoderp') for process in processes)
 
-    def test_011_profile1d(self):
+    def test_012_profile1d(self):
         ofile = self._run_job_request(        
             Path(__file__).parent / 'request-profile1d.xml',
             '.csv',
