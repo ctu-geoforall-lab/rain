@@ -13,6 +13,7 @@ services:
       - ./ows/wms/log/:/var/log/mapserv
       - ./ows/wfs:/opt/mapserv/wfs
       - ./qgis/styles:/data/styles
+      - ./rain6h-cn-runoff:/var/www/html/rain6h-cn-runoff
     ports:
       - 80:80
     env_file:
