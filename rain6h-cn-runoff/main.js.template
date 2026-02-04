@@ -158,10 +158,10 @@ $(document).ready(function() {
     //switcher.maximizeControl();
     
     // base layer
-    zm50Layer = new OpenLayers.Layer.WMS("ZM 50 (CUZK)",
-                                         "https://geoportal.cuzk.cz/WMS_ZM50_PUB/WMService.aspx",
-                                         {layers: "GR_ZM50", srs: "EPSG:4326"});
-    zm50Layer.title = "ZM50";
+    zm50Layer = new OpenLayers.Layer.WMS("ZTM 50 (CUZK)",
+                                         "https://ags.cuzk.gov.cz/arcgis1/services/ZTM/ZTM50/MapServer/WMSServer",
+                                         {layers: "0", srs: "EPSG:4326"});
+    zm50Layer.title = "ZTM50";
 
     h002Layer = new OpenLayers.Layer.WMS("2 roky",
                                          "${NGINX_HTTP}://${NGINX_HOST}:${NGINX_PORT}/services/wms",
