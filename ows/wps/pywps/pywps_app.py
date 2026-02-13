@@ -13,12 +13,14 @@ from processes.d_rain6h_timedist import DRain6hTimedist
 from processes.raintotal6h_timedist import Raintotal6hTimedist
 from processes.soil_texture_hsg import SoilTextureHsg
 from processes.rain6h_cn_runoff import Rain6hCnRunoff
+from processes.d_rain_point import DRainPoint
 
 processes = [
     DRain6hTimedist(),
     Raintotal6hTimedist(),
     SoilTextureHsg(),
-    Rain6hCnRunoff()
+    Rain6hCnRunoff(),
+    DRainPoint()
 ]
 
 application = Service(
