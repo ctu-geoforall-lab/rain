@@ -168,56 +168,56 @@ services:
 # Rain modification ends here
 
 
-  prometheus:
-    restart: unless-stopped
-    image: prom/prometheus
-    volumes:
-      - ./gisquick/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
-      - prometheus_data:/prometheus
-    ports:
-      - 9090
-    logging: *default-logging
-    command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.path=/prometheus'
-      - '--web.console.libraries=/etc/prometheus/console_libraries'
-      - '--web.console.templates=/etc/prometheus/consoles'
-      - '--web.enable-lifecycle'
+  # prometheus:
+  #   restart: unless-stopped
+  #   image: prom/prometheus
+  #   volumes:
+  #     - ./gisquick/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+  #     - prometheus_data:/prometheus
+  #   ports:
+  #     - 9090
+  #   logging: *default-logging
+  #   command:
+  #     - '--config.file=/etc/prometheus/prometheus.yml'
+  #     - '--storage.tsdb.path=/prometheus'
+  #     - '--web.console.libraries=/etc/prometheus/console_libraries'
+  #     - '--web.console.templates=/etc/prometheus/consoles'
+  #     - '--web.enable-lifecycle'
 
-  loki:
-    restart: always
-    image: grafana/loki:2.6.1
-    volumes:
-      - ./gisquick/loki/loki-config.yaml:/etc/loki/config.yaml
-      - loki:/loki
-    ports:
-      - 3100
-    logging: *default-logging
-    command: -config.file=/etc/loki/config.yaml
+  # loki:
+  #   restart: always
+  #   image: grafana/loki:2.6.1
+  #   volumes:
+  #     - ./gisquick/loki/loki-config.yaml:/etc/loki/config.yaml
+  #     - loki:/loki
+  #   ports:
+  #     - 3100
+  #   logging: *default-logging
+  #   command: -config.file=/etc/loki/config.yaml
 
-  promtail:
-    restart: always
-    image: grafana/promtail:2.6.1
-    volumes:
-      - /var/lib/docker/containers:/var/lib/docker/containers:ro
-      - ./gisquick/promtail:/etc/promtail-config/
-    logging: *default-logging
-    command: -config.file=/etc/promtail-config/config.yml
+  # promtail:
+  #   restart: always
+  #   image: grafana/promtail:2.6.1
+  #   volumes:
+  #     - /var/lib/docker/containers:/var/lib/docker/containers:ro
+  #     - ./gisquick/promtail:/etc/promtail-config/
+  #   logging: *default-logging
+  #   command: -config.file=/etc/promtail-config/config.yml
 
 
-  grafana:
-    restart: unless-stopped
-    image: grafana/grafana
-    volumes:
-      - grafana-data:/var/lib/grafana
-    environment:
-      - GF_SERVER_ROOT_URL=${SERVER_URL}/admin/grafana/
-      - GF_SERVER_SERVE_FROM_SUB_PATH=true
-      - GF_AUTH_ANONYMOUS_ENABLED=true
-      - GF_USERS_VIEWERS_CAN_EDIT=true
-    ports:
-      - 3000
-    logging: *default-logging
+  # grafana:
+  #   restart: unless-stopped
+  #   image: grafana/grafana
+  #   volumes:
+  #     - grafana-data:/var/lib/grafana
+  #   environment:
+  #     - GF_SERVER_ROOT_URL=${SERVER_URL}/admin/grafana/
+  #     - GF_SERVER_SERVE_FROM_SUB_PATH=true
+  #     - GF_AUTH_ANONYMOUS_ENABLED=true
+  #     - GF_USERS_VIEWERS_CAN_EDIT=true
+  #   ports:
+  #     - 3000
+  #   logging: *default-logging
 # Gisquick ends here
 
 volumes:
@@ -233,9 +233,9 @@ volumes:
   db-data:
   redisdata:
   assets:
-  prometheus_data:
-  grafana-data:
-  loki:
+#  prometheus_data:
+#  grafana-data:
+#  loki:
   caddy_data:
   caddy_config:
 # Gisquick ends here
