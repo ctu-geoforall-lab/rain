@@ -104,7 +104,7 @@ import { saveAs } from 'file-saver'
 import PlotChart, { bandsExtent } from './PlotChart.vue'
 // import data from './rain.json'
 
-import { getFeatureQuery, layerFeaturesQuery } from '@/map/featureinfo'
+import { layersFeaturesQuery } from '@/map/featureinfo'
 
 function cn2 (v) {
   if (v < 20) {
@@ -296,8 +296,7 @@ export default {
   methods: {
     async fetchData () {
       const bandLayers = mapValues(this.bands, ((v, id) => `tvar${id}`))
-      const queries = Object.values(bandLayers).map(name => layerFeaturesQuery({ name }))
-      const query = getFeatureQuery(queries)
+      const query = layersFeaturesQuery(Object.values(bandLayers).map(name => ({ name })), {})
       const params = {
         'VERSION': '1.1.0',
         'SERVICE': 'WFS',
@@ -305,7 +304,7 @@ export default {
         'OUTPUTFORMAT': 'GeoJSON',
         'MAXFEATURES': 1000
       }
-      const { data } = await this.$http.post(this.project.ows_url, query, { params, headers: { 'Content-Type': 'text/xml' } })
+      const { data } = await this.$http.post(this.project.config.ows_url, query, { params, headers: { 'Content-Type': 'text/xml' } })
       const layersBands = invert(bandLayers)
       return groupBy(data.features, f => layersBands[f.id.split('.')[0]])
     },
