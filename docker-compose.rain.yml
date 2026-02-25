@@ -154,6 +154,7 @@ services:
 # Rain modification starts here
       - wps_output_data:/var/www/wps/output/
       - ./rain6h-cn-runoff:/var/www/html/rain6h-cn-runoff
+      - ./gisquick/data/publish/urban/urban_areas/export:/var/www/html/data/urban
 # Rain modification ends here
     ports:
       - 2019
