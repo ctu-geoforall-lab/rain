@@ -88,7 +88,14 @@ class SubDayPrecipProcess(Process):
                     default=','.join(return_periods),
                     mode=MODE.NONE)
                )
-          
+
+          if 'rainlength' in input_params:
+               inputs.append(LiteralInput(
+                    identifier="rainlength",
+                    title="Delka srazky v minutach",
+                    data_type='integer')
+               )
+
           if 'area_size' in input_params:
                inputs.append(LiteralInput(
                     identifier="area_size",
@@ -144,6 +151,13 @@ class SubDayPrecipProcess(Process):
                     default="0.2")
                )
                
+          if 'output_value' in output_params:
+               outputs.append(LiteralOutput(
+                    identifier="output",
+                    title="Vycislena hodnota navrhove srazky v mm",
+                    data_type='string')
+               )
+
           if 'output_volume' in output_params:
                outputs.append(ComplexOutput(
                     identifier="output", 
@@ -271,13 +285,17 @@ class SubDayPrecipProcess(Process):
                     self._v_rast_stats(self.area_red)
                elif self.identifier == 'rain6h-cn-runoff':
                     self.compute_volume(self.cn2, self.lambda_, self.area)
-                    
+               elif self.identifier == 'd-rain-point':
+                    self.compute_subdayprecip_design(self.rainlength)
+
                LOGGER.info("Computation finished: {} sec".format(time.time() - start))
 
           # export output
           if self.identifier == 'd-rain6h-timedist':
                response.outputs['output_shapes'].file, response.outputs['output'].file = \
                     self.export()
+          elif self.identifier == 'd-rain-point':
+               response.outputs['output'].data = self.export()
           else:
                response.outputs['output'].file = self.export()
           self.report_progress(100, "Computation finished")
