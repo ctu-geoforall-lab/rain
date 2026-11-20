@@ -1,4 +1,4 @@
-# grass --tmp-location EPSG:5514 --exec python3 publish_raster.py
+# grass --tmp-project EPSG:5514 --exec python3 publish_raster.py
 
 import os
 import glob
