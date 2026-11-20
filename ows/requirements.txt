@@ -1,4 +1,2 @@
-pywps==4.2.8
-python-magic==0.4.18
-werkzeug<2
-six==1.17.0
+pywps==4.8.1
+python-magic==0.4.27

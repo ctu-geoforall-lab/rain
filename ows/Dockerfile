@@ -20,7 +20,7 @@ RUN rm /etc/nginx/sites-enabled/default
 # install GRASS extensions
 RUN grass --tmp-project EPSG:5514 --exec g.extension -s r.subdayprecip.design
 
-# patch pyWPS 4.2.8
+# patch pyWPS 4.8.1
 COPY wps/pywps/patches/ /tmp/
 RUN patch -p0 < /tmp/Service.diff
 RUN patch -p0 < /tmp/Process.diff
