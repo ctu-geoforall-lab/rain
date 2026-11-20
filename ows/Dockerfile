@@ -18,7 +18,7 @@ RUN mkdir -p /var/log/pypws
 RUN rm /etc/nginx/sites-enabled/default
 
 # install GRASS extensions
-RUN grass --tmp-location EPSG:5514 --exec g.extension -s r.subdayprecip.design
+RUN grass --tmp-project EPSG:5514 --exec g.extension -s r.subdayprecip.design
 
 # patch pyWPS 4.2.8
 COPY wps/pywps/patches/ /tmp/
