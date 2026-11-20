@@ -6,7 +6,7 @@ RUN apt-get update && apt-get install --yes software-properties-common gettext-b
 # RUN add-apt-repository --yes ppa:ubuntugis/ubuntugis-unstable
 RUN apt-get update
 RUN apt-get install --yes python3-pip python3-pyproj gunicorn nginx
-RUN apt-get install --yes grass-core grass-doc grass-dev
+RUN apt-get install --yes grass-core grass-doc grass-dev make
 RUN apt-get install --yes cgi-mapserver fcgiwrap spawn-fcgi
 
 COPY requirements.txt /tmp/requirements.txt
