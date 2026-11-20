@@ -1,4 +1,4 @@
-FROM sphinxdoc/sphinx:3.5.2
+FROM sphinxdoc/sphinx:8.2.3
 WORKDIR /docs
 ADD requirements.txt /docs
 RUN pip3 install -r requirements.txt
