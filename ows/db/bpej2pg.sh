@@ -4,7 +4,7 @@ createdb $DBNAME
 psql $DBNAME -c 'create extension postgis'
 
 ogr2ogr -f PostgreSQL -overwrite -nln bpej -a_srs EPSG:5514 -nlt MULTIPOLYGON \
-	-lco GEOMETRY_NAME=geom \
+	-lco GEOMETRY_NAME=geom -lco PRECISION=NO \
         PG:dbname=$DBNAME /vsizip/data/$BPEJ_FILE
 
 # grant privileges
