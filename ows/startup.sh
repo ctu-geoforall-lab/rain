@@ -33,7 +33,7 @@ spawn-fcgi -s /var/run/fcgiwrap.socket -F 5 /usr/sbin/fcgiwrap
 chown www-data:www-data /var/run/fcgiwrap.socket
 nginx -g 'daemon off;' &
 
-export LD_LIBRARY_PATH=/usr/lib/grass83/lib
+export LD_LIBRARY_PATH=/usr/lib/grass84/lib
 
 # create log file for MapServer otherwise it fails
 touch /var/log/mapserv/mapserv.log

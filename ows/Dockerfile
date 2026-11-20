@@ -1,11 +1,11 @@
 # FROM mundialis/grass-py3-pdal:stable-ubuntu
-FROM ubuntu:24.04
+FROM ubuntu:26.04
 
 # install requirements
 RUN apt-get update && apt-get install --yes software-properties-common gettext-base
 # RUN add-apt-repository --yes ppa:ubuntugis/ubuntugis-unstable
 RUN apt-get update
-RUN apt-get install --yes python3-pip python3-pyproj gunicorn3 nginx
+RUN apt-get install --yes python3-pip python3-pyproj gunicorn nginx
 RUN apt-get install --yes grass-core grass-doc grass-dev
 RUN apt-get install --yes cgi-mapserver fcgiwrap spawn-fcgi
 
