@@ -4,7 +4,7 @@ import tempfile
 import json
 from csv import DictReader
 from pathlib import Path
-from owslib.wps import WebProcessingService, monitorExecution, ComplexDataInput
+from owslib.wps import WebProcessingService, monitorExecution, ComplexDataInput, ASYNC
 from osgeo import ogr, gdal
 
 class TestWPS:
@@ -266,3 +266,31 @@ class TestWPS:
             for row in data:
                 assert float(row["length[m]"]) > 0
                 assert row["soilVegFID"] in ("HXGEO", "PXOP")
+
+    def test_012_d_rain6h_timedist_async(self):
+        """Test asynchronous execution (storeExecuteResponse/status)."""
+        execution = self._wps().execute(
+            'd-rain6h-timedist',
+            [("input", self.input_data),
+             ("keycolumn", self.keycolumn),
+            ] + self._request_multi("return_period") + self._request_multi("type"),
+            # note: OWSLib adds ResponseForm (storeExecuteResponse/status)
+            # only when outputs are explicitly defined
+            output=[("output", True), ("output_shapes", True)],
+            mode=ASYNC
+        )
+        # server must respond immediately with status location
+        assert execution.statusLocation
+        assert execution.getStatus() in ("ProcessAccepted", "ProcessStarted",
+                                         "ProcessSucceeded")
+
+        monitorExecution(execution)
+        assert execution.getStatus() == "ProcessSucceeded"
+
+        ofiles = []
+        for output in execution.processOutputs:
+            ofile = self._get_filename() + '.csv'
+            execution.getOutput(ofile, output.identifier)
+            self._dump_ofile(ofile)
+            ofiles.append(ofile)
+        self._process_d_rain6h_timedist(ofiles)
